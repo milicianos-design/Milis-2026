@@ -34,6 +34,16 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2bebb; border-radius: 10px; }
+        
+        /* Respaldo por si Tailwind no está compilando las clases responsivas */
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-12 { display: grid !important; grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+            .lg\:col-span-2 { grid-column: span 2 / span 2 !important; }
+            .lg\:col-span-7 { grid-column: span 7 / span 7 !important; }
+            .lg\:col-span-3 { grid-column: span 3 / span 3 !important; }
+            .lg\:hidden { display: none !important; }
+            .lg\:flex { display: flex !important; }
+        }
     </style>
 </head>
 <body class="bg-[#fff8f0] text-zinc-900 selection:bg-[#ffdad7] selection:text-[#410004] min-h-screen flex flex-col font-['Plus_Jakarta_Sans']">
@@ -62,15 +72,15 @@
 </nav>
 
 <!-- MAIN APP FORO LAYOUT -->
-<main class="flex-1 w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 md:p-8 h-auto lg:h-[calc(100vh-82px)] lg:overflow-hidden">
+<main class="flex-1 w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 md:p-8">
     <!-- Mobile Tabs (Foro vs Notas) -->
-    <div class="lg:hidden flex bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1 mb-2 col-span-1">
-        <button id="tab-foro" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-zinc-800 shadow text-primary transition-all" onclick="switchMobileTab('foro')">Foro</button>
-        <button id="tab-notas" class="flex-1 py-2 text-sm font-bold rounded-lg text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-all" onclick="switchMobileTab('notas')">Notas</button>
+    <div class="lg:hidden flex bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1 mb-2 col-span-1 h-12">
+        <button id="tab-foro" class="flex-1 h-full text-sm font-bold rounded-lg bg-white dark:bg-zinc-800 shadow text-primary transition-all" onclick="switchMobileTab('foro')">Foro</button>
+        <button id="tab-notas" class="flex-1 h-full text-sm font-bold rounded-lg text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-all" onclick="switchMobileTab('notas')">Notas</button>
     </div>
 
     <!-- COLUMNA 1: Comunidades -->
-    <aside class="hidden lg:flex lg:col-span-2 flex-col space-y-6 overflow-y-auto custom-scrollbar">
+    <aside class="hidden lg:flex lg:col-span-2 flex-col space-y-6 sticky top-24 self-start">
         <div>
             <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-4 px-2">Comunidades</h3>
             <nav class="space-y-1">
@@ -92,7 +102,7 @@
     </aside>
 
     <!-- COLUMNA 2: Foro Feed Central -->
-    <section id="col-foro" class="lg:col-span-7 flex lg:flex flex-col space-y-6 overflow-y-auto custom-scrollbar pr-2 pb-10 lg:pb-0">
+    <section id="col-foro" class="lg:col-span-7 flex lg:flex flex-col space-y-6 pr-2 pb-10">
         <header class="mb-2">
             <span class="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">Formación & Doctrina</span>
             <h1 class="text-3xl font-extrabold tracking-tighter text-on-surface font-['Sora']">Foro de <span class="text-primary-container">Milicianos</span></h1>
@@ -184,7 +194,7 @@
     </section>
 
     <!-- COLUMNA 3: Notas de Formacion -->
-    <aside id="col-notas" class="hidden lg:flex lg:col-span-3 flex-col space-y-6 overflow-y-auto custom-scrollbar">
+    <aside id="col-notas" class="hidden lg:flex lg:col-span-3 flex-col space-y-6 sticky top-24 self-start">
         <div class="flex items-center justify-between mb-2">
             <h2 class="text-sm font-bold tracking-tight px-1 font-['Sora']">Notas de Vanguardia</h2>
             <div class="flex gap-2">
@@ -195,7 +205,7 @@
         <!-- Notes Search Bar -->
         <div class="mb-6 relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">search</span>
-            <input type="text" id="note-search" placeholder="Buscar por tema o palabras clave..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-100 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#960317]/10 outline-none transition-all shadow-sm">
+            <input type="text" id="note-search" placeholder="Buscar por tema o palabras clave..." class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#960317]/10 outline-none transition-all shadow-sm">
         </div>
         
         <div id="notes-feed" class="space-y-4">
