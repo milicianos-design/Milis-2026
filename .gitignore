@@ -1,0 +1,33 @@
+# Binarios
+tailwindcss.exe
+
+# Dependencias (lo más pesado, nunca se sube)
+node_modules/
+.pnpm-store/
+
+# Construcción y producción
+dist/
+build/
+.next/
+out/
+
+# Variables de entorno (seguridad: contraseñas, keys de APIs)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs y errores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Archivos temporales de IA y pruebas
+scratch/

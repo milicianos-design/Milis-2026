@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Verso L'Alto | Pier Giorgio Frassati</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" />
+    <link href="css/output.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(255, 248, 240, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .grain-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.05;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        #hero-bg {
+            will-change: transform;
+            transform-origin: center;
+        }
+
+        #hero-text {
+            will-change: transform, opacity;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+    <!-- TopNavBar Shell -->
+    <nav
+        class="sticky top-0 w-full z-50 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(30,27,21,0.06)] flex justify-between items-center px-8 py-4 max-w-full">
+        <div class="flex items-center gap-4">
+            <img alt="Milicianos Logo" class="h-10 w-auto" src="assets/images/favicon.png" />
+            <span class="text-2xl font-extrabold tracking-tighter text-[#960317] dark:text-[#b9252b]">Milicianos</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 font-semibold tracking-tight text-zinc-600">
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="index.html">Misión</a>
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="bien-comun-2026.html">Eje Formativo</a>
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="promesas.html">Promesas</a>
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="foro.html">Foro</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex items-center gap-4">
+                <button
+                    class="px-6 py-2.5 rounded-xl text-zinc-600 font-semibold hover:opacity-80 transition-transform active:scale-95">Login</button>
+                <button
+                    class="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">Unirse</button>
+            </div>
+            <button
+                class="mobile-menu-btn md:hidden p-2 text-zinc-800 dark:text-zinc-200 hover:text-[#960317] transition-colors">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+        </div>
+    </nav>
+    <main>
+        <!-- 1. Hero Section -->
+        <section class="relative min-h-screen flex items-center justify-center overflow-hidden py-20">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <div id="hero-bg" class="absolute inset-0 bg-cover bg-center w-full h-full brightness-[0.65]"
+                    style="background-image: url('assets/images/pier_giorgio_16_9.png');"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-[#1e1b15] via-transparent to-transparent opacity-80">
+                </div>
+                <div class="grain-overlay"></div>
+            </div>
+            <div id="hero-text" class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+                <span
+                    class="inline-block py-1 px-3 rounded-full bg-surface-container-high/20 backdrop-blur-md text-surface-bright text-xs font-bold tracking-widest uppercase mb-6 border border-surface-container-highest/30">
+                    Biopic
+                </span>
+                <h1
+                    class="text-5xl md:text-6xl lg:text-7xl font-headline font-black text-surface-bright leading-[1.1] tracking-tighter mb-6 drop-shadow-2xl">
+                    VERSO L’ALTO <br />
+                    <span class="text-primary-container text-3xl md:text-5xl lg:text-5xl font-bold block mt-2 opacity-95">El camino de un Miliciano</span>
+                </h1>
+                <p
+                    class="text-lg md:text-xl text-white font-body font-medium italic mb-10 max-w-xl mx-auto drop-shadow-md">
+                    "Ni un paso atrás en la búsqueda de la Verdad"
+                </p>
+                <a class="inline-flex items-center gap-3 bg-primary text-on-primary px-8 py-4 rounded-full font-label font-bold text-lg hover:bg-primary-container transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 group"
+                    href="#history">
+                    Iniciá el ascenso
+                    <span class="material-symbols-outlined group-hover:translate-y-1 transition-transform"
+                        data-icon="south">south</span>
+                </a>
+            </div>
+        </section>
+        <!-- 2. History: Asymmetric Layout -->
+        <section class="py-24 px-6 md:px-12 bg-surface" id="history">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <!-- Left: Content Glassmorphism Card -->
+                    <div class="lg:col-span-5 lg:col-start-2 relative z-10">
+                        <div
+                            class="glass-panel p-10 md:p-14 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+                            <!-- Decorative accent -->
+                            <div class="absolute top-0 left-0 w-2 h-full bg-primary-container"></div>
+                            <h2 class="text-3xl md:text-4xl font-headline font-bold text-on-surface mb-6">
+                                Las Calles de Turín
+                            </h2>
+                            <p class="text-on-surface-variant text-lg leading-relaxed mb-6 font-body">
+                                Nacido en una familia acomodada, Pier Giorgio eligió la carrera de ingeniería minera no
+                                para enriquecerse, sino para "servir a Cristo entre los mineros", una de las profesiones
+                                más duras de su época.
+                            </p>
+                            <p class="text-on-surface-variant text-lg leading-relaxed mb-8 font-body">
+                                Su labor social era silenciosa pero incansable. Entregaba su dinero, su tiempo e incluso
+                                su propia ropa a los pobres de los barrios periféricos, viendo en ellos el rostro mismo
+                                de Jesús.
+                            </p>
+                            <blockquote class="border-l-4 border-secondary pl-6 py-2 my-8">
+                                <p class="text-2xl font-headline font-semibold text-primary italic">
+                                    "Vivir, no ir tirando"
+                                </p>
+                            </blockquote>
+                        </div>
+                    </div>
+                    <!-- Right: Asymmetric Image Grid -->
+                    <div class="lg:col-span-6 lg:col-start-7 relative">
+                        <img alt="Pier Giorgio and Friends" class="w-full h-auto object-cover rounded-lg shadow-2xl"
+                            src="assets/images/pier_giorgio_turin.gif" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 3. Spirituality: Bento Grid -->
+        <section class="py-24 px-6 md:px-12 bg-surface-container-low relative overflow-hidden" id="spirituality">
+            <!-- Decorative background elements -->
+            <div
+                class="absolute top-0 right-0 w-[800px] h-[800px] bg-tertiary-fixed-dim/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3">
+            </div>
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="text-center mb-16">
+                    <span
+                        class="text-secondary font-bold tracking-widest uppercase text-sm mb-2 block font-label">Espiritualidad</span>
+                    <h2 class="text-4xl md:text-5xl font-headline font-bold text-on-surface">El Sagrario en la Cumbre
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
+                    <div class="md:col-span-2 row-span-2 rounded-xl overflow-hidden relative group">
+                        <img alt="Pier Giorgio Climbing"
+                            class="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                            data-alt="Pier Giorgio Frassati climbing a rock, Verso l'alto"
+                            src="assets/images/pier_giorgio_climb.jpg" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-inverse-surface via-inverse-surface/40 to-transparent">
+                        </div>
+                        <div class="absolute bottom-0 left-0 p-8 w-full">
+                            <span class="material-symbols-outlined text-secondary mb-3 text-4xl"
+                                data-icon="ac_unit">ac_unit</span>
+                            <h3 class="text-3xl font-headline font-bold text-surface-bright mb-3">El Rosario en la Nieve
+                            </h3>
+                            <p class="text-surface-container-high text-lg max-w-lg">Para él, la montaña no era un simple
+                                deporte, era una vía hacia Dios. Rezaba con sus amigos en medio de la inmensidad blanca.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Bento Item 2: Eucharist -->
+                    <div
+                        class="rounded-xl overflow-hidden relative group bg-surface-container-high p-8 flex flex-col justify-between shadow-sm border border-surface-container-highest">
+                        <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center mb-4">
+                            <span class="material-symbols-outlined text-on-primary-container"
+                                data-icon="church">church</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-headline font-bold text-on-surface mb-2">Comunión Diaria</h3>
+                            <p class="text-on-surface-variant font-body">"Jesús me visita cada mañana en la Santa
+                                Comunión, yo se lo devuelvo de la misera manera que puedo: visitando a sus pobres".</p>
+                        </div>
+                    </div>
+                    <!-- Bento Item 3: Vigils -->
+                    <div class="rounded-xl overflow-hidden relative group">
+                        <img alt="Night Vigil" class="absolute inset-0 w-full h-full object-cover brightness-75"
+                            style="object-position: center 15%;" data-alt="portrait of Pier Giorgio Frassati smiling"
+                            src="assets/images/pier_giorgio_vigilia.jpg" />
+                        <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                            <h3 class="text-xl font-headline font-bold text-surface-bright mb-2">Vigilias Nocturnas</h3>
+                            <p class="text-surface-container-high font-body text-sm">Pasaba largas horas de la noche en
+                                adoración profunda, forjando su fuerza interior.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 5. Timeline: Vertical Tracking -->
+        <section class="py-24 px-6 md:px-12 bg-surface">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-headline font-bold text-on-surface mb-4">Huellas en la Piedra
+                    </h2>
+                    <p class="text-on-surface-variant text-lg">Los hitos de un ascenso acelerado hacia la santidad.</p>
+                </div>
+                <div
+                    class="relative border-l-2 border-surface-container-highest ml-4 md:ml-0 md:mx-auto md:w-full md:flex md:flex-col md:items-center">
+                    <!-- Timeline Item 1 -->
+                    <div class="mb-12 relative pl-8 md:pl-0 md:w-1/2 md:pr-12 md:self-start md:text-right group">
+                        <div
+                            class="absolute w-4 h-4 bg-primary-container rounded-full -left-[9px] md:left-auto md:-right-[9px] top-1.5 border-4 border-surface group-hover:scale-125 transition-transform">
+                        </div>
+                        <h3 class="text-2xl font-headline font-bold text-primary mb-1">1901</h3>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">Nacimiento en Turín</h4>
+                        <p class="text-on-surface-variant font-body">Nace en el seno de una familia burguesa. Su padre,
+                            fundador del diario La Stampa, y su madre, una pintora reconocida.</p>
+                    </div>
+                    <!-- Timeline Item 2 -->
+                    <div class="mb-12 relative pl-8 md:pl-0 md:w-1/2 md:pl-12 md:self-end group">
+                        <div
+                            class="absolute w-4 h-4 bg-secondary-container rounded-full -left-[9px] top-1.5 border-4 border-surface group-hover:scale-125 transition-transform">
+                        </div>
+                        <h3 class="text-2xl font-headline font-bold text-secondary mb-1">1918</h3>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">Ingreso a San Vicente de Paúl</h4>
+                        <p class="text-on-surface-variant font-body">Se une formalmente a las conferencias vicentinas,
+                            comenzando su trabajo directo y personal con los más necesitados de la ciudad.</p>
+                    </div>
+                    <!-- Timeline Item 3 -->
+                    <div class="mb-12 relative pl-8 md:pl-0 md:w-1/2 md:pr-12 md:self-start md:text-right group">
+                        <div
+                            class="absolute w-4 h-4 bg-tertiary-container rounded-full -left-[9px] md:left-auto md:-right-[9px] top-1.5 border-4 border-surface group-hover:scale-125 transition-transform">
+                        </div>
+                        <h3 class="text-2xl font-headline font-bold text-tertiary mb-1">1922</h3>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">Terciario Dominico</h4>
+                        <p class="text-on-surface-variant font-body">Ingresa a la orden tercera tomando el nombre de
+                            Fray Jerónimo, en honor a Savonarola, reforzando su compromiso laical radical.</p>
+                    </div>
+                    <!-- Timeline Item 4 -->
+                    <div class="relative pl-8 md:pl-0 md:w-1/2 md:pl-12 md:self-end group">
+                        <div
+                            class="absolute w-4 h-4 bg-primary rounded-full -left-[9px] top-1.5 border-4 border-surface group-hover:scale-125 transition-transform">
+                        </div>
+                        <h3 class="text-2xl font-headline font-bold text-primary mb-1">1925</h3>
+                        <h4 class="text-xl font-bold text-on-surface mb-2">El Ascenso Final</h4>
+                        <p class="text-on-surface-variant font-body">Contrae poliomielitis fulminante, presuntamente
+                            contagiado por los enfermos que visitaba. Muere a los 24 años, rodeado por la multitud de
+                            pobres que había ayudado.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer Shell -->
+    <footer
+        class="w-full border-t border-zinc-200/20 bg-[#fff8f0] dark:bg-zinc-950 flex flex-col md:flex-row justify-between items-center px-12 py-10">
+        <div class="mb-6 md:mb-0">
+            <span class="font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase text-zinc-500">© 2024 Milicianos.
+                Legado Moderno en Acción.</span>
+        </div>
+        <div class="flex gap-8 font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase">
+            <a class="text-zinc-500 hover:text-[#960317] transition-transform duration-200 hover:translate-y-[-2px]"
+                href="#">Privacidad</a>
+            <a class="text-zinc-500 hover:text-[#960317] transition-transform duration-200 hover:translate-y-[-2px]"
+                href="#">Términos</a>
+            <a class="text-zinc-500 hover:text-[#960317] transition-transform duration-200 hover:translate-y-[-2px]"
+                href="#">Contacto</a>
+            <a class="text-zinc-500 hover:text-[#960317] transition-transform duration-200 hover:translate-y-[-2px]"
+                href="#">Transparencia</a>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 z-[100] bg-white dark:bg-zinc-950 hidden flex-col opacity-0 transition-opacity duration-300" style="display:none">
+        
+        <!-- Top: Logo + Close -->
+        <div class="flex justify-between items-center px-6 py-5 border-b border-zinc-100 dark:border-zinc-900">
+            <div class="flex items-center gap-3 text-xl font-extrabold tracking-tighter text-[#960317]">
+                <img alt="Logo" class="h-8 w-auto" src="assets/images/favicon.png"/>
+                Milicianos
+            </div>
+            <button class="mobile-menu-close p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-800 dark:text-white transition-colors">
+                <span class="material-symbols-outlined text-3xl">close</span>
+            </button>
+        </div>
+
+        <!-- Middle: Nav Links (centered) -->
+        <div class="flex-1 flex flex-col items-center justify-center gap-8">
+            <a class="text-zinc-800 dark:text-zinc-100 hover:text-[#960317] text-4xl font-bold font-['Sora'] tracking-tight transition-colors" href="index.html">Misión</a>
+            <a class="text-zinc-800 dark:text-zinc-100 hover:text-[#960317] text-4xl font-bold font-['Sora'] tracking-tight transition-colors" href="bien-comun-2026.html">Eje Formativo</a>
+            <a class="text-zinc-800 dark:text-zinc-100 hover:text-[#960317] text-4xl font-bold font-['Sora'] tracking-tight transition-colors" href="promesas.html">Promesas</a>
+            <a class="text-zinc-800 dark:text-zinc-100 hover:text-[#960317] text-4xl font-bold font-['Sora'] tracking-tight transition-colors" href="foro.html">Foro</a>
+        </div>
+
+        <!-- Bottom: Action Buttons -->
+        <div id="mobile-menu-auth" class="px-6 pb-10 flex flex-col gap-3">
+            <button onclick="openAuth('login')" class="w-full py-4 rounded-2xl text-zinc-800 dark:text-zinc-100 font-semibold border border-zinc-200 dark:border-zinc-700 text-lg bg-zinc-50 dark:bg-zinc-900 active:scale-95 transition-transform">Login</button>
+            <button onclick="openAuth('signup')" class="w-full py-4 rounded-2xl bg-gradient-to-br from-[#960317] to-[#b9252b] text-white font-bold text-lg shadow-lg active:scale-95 transition-transform">Unirse</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="/js/main.js"></script>
+
+    <script>
+        // ── Vertigo / Dolly-Zoom Effect ──────────────────────────────────────────
+        // Uses requestAnimationFrame + a dirty flag to batch DOM writes at 60fps.
+        // Only runs while the hero is visible (scroll < viewportHeight).
+        (function () {
+            const heroBg = document.getElementById('hero-bg');
+            const heroText = document.getElementById('hero-text');
+            if (!heroBg || !heroText) return;
+
+            const MAX_SCROLL = window.innerHeight;   // stop after 1 viewport
+            const BG_SCALE_MAX = 1.3;                // bg zooms in to 1.3×
+            const TEXT_TRANSLATE_MAX = -60;          // text drifts up 60px
+
+            let lastScroll = -1;
+            let rafId = null;
+            let isDirty = false;
+
+            function lerp(a, b, t) { return a + (b - a) * t; }
+
+            function applyEffect() {
+                const scroll = window.pageYOffset;
+                if (scroll === lastScroll) { rafId = null; return; }
+                lastScroll = scroll;
+
+                const t = Math.min(scroll / MAX_SCROLL, 1);  // 0..1
+
+                // Background: zooms IN as user scrolls down
+                const bgScale = lerp(1.0, BG_SCALE_MAX, t);
+                heroBg.style.transform = `scale(${bgScale})`;
+
+                // Text: fades out + drifts up  
+                const textY = lerp(0, TEXT_TRANSLATE_MAX, t);
+                const opacity = lerp(1, 0, t * 1.5);          // fades faster
+                heroText.style.transform = `translateY(${textY}px)`;
+                heroText.style.opacity = Math.max(0, opacity);
+
+                isDirty = false;
+                rafId = null;
+            }
+
+            function onScroll() {
+                if (window.pageYOffset > MAX_SCROLL) return; // hero already gone
+                if (!isDirty) {
+                    isDirty = true;
+                    rafId = requestAnimationFrame(applyEffect);
+                }
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            // Run once on load so initial state is correct
+            applyEffect();
+        })();
+    </script>
+</body>
+
+</html>

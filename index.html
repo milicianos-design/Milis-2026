@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;700&amp;family=Plus+Jakarta+Sans:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" />
+    <link href="css/output.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="/js/main.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .soft-premium-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 10px 40px -10px rgba(0, 0, 0, 0.03),
+                0 20px 80px -20px rgba(150, 3, 23, 0.05),
+                inset 0 1px 1px rgba(255, 255, 255, 1);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .soft-premium-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow:
+                0 30px 60px -15px rgba(0, 0, 0, 0.08),
+                0 40px 100px -20px rgba(150, 3, 23, 0.12),
+                inset 0 1px 2px rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .countdown-unit {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow:
+                0 4px 24px -1px rgba(0, 0, 0, 0.2),
+                inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .countdown-unit:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .glow-primary {
+            text-shadow: 0 0 20px rgba(150, 3, 23, 0.4);
+        }
+
+        /* Map Styles */
+        .province-path {
+            fill: #1e1b15;
+            /* Zinc 900 approx */
+            stroke: #333;
+            stroke-width: 0.2;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .province-path:hover {
+            fill: #960317 !important;
+            opacity: 1 !important;
+            cursor: pointer;
+        }
+
+        .province-path.has-rucas {
+            fill: #960317;
+            opacity: 0.4;
+        }
+
+        .province-path.selected {
+            fill: #960317 !important;
+            opacity: 1 !important;
+            stroke: #fff !important;
+            stroke-width: 1 !important;
+        }
+
+        .map-svg-filter {
+            filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.5));
+        }
+
+        /* Hero Carousel */
+        .carousel-item {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 0;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+    <!-- TopNavBar Shell -->
+    <nav
+        class="sticky top-0 w-full z-50 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(30,27,21,0.06)] flex justify-between items-center px-8 pt-8 pb-4 max-w-full">
+        <div class="flex items-center gap-4">
+            <img alt="Milicianos Logo" class="h-10 w-auto" src="assets/images/favicon.png" />
+            <span class="text-2xl font-extrabold tracking-tighter text-[#960317] dark:text-[#b9252b]">Milicianos</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 font-semibold tracking-tight text-zinc-600">
+            <a class="text-[#960317] border-b-2 border-[#960317] pb-1 transition-all duration-300 hover:scale-105"
+                href="index.html">Misión</a>
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="bien-comun-2026.html">Eje Formativo</a>
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="promesas.html">Promesas</a>
+            <a class="text-zinc-600 hover:text-zinc-900 transition-all duration-300 hover:scale-105"
+                href="foro.html">Foro</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex items-center gap-4">
+                <button
+                    class="px-6 py-2.5 rounded-xl text-zinc-600 font-semibold hover:opacity-80 transition-transform active:scale-95">Login</button>
+                <button
+                    class="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl font-semibold shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">Unirse</button>
+            </div>
+            <button
+                class="mobile-menu-btn md:hidden p-2 text-zinc-800 dark:text-zinc-200 hover:text-[#960317] transition-colors">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+        </div>
+    </nav>
+    <main>
+
+        <!-- Hero Section -->
+        <section id="hero"
+            class="relative min-h-screen md:min-h-[100vh] flex items-center py-32 overflow-hidden bg-zinc-950">
+            <!-- Hero Carousel Background -->
+            <div id="hero-carousel" class="absolute inset-0 z-0">
+                <div class="carousel-item active absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('assets/images/hero/hero-1.webp')"></div>
+                <div class="carousel-item absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('assets/images/hero/hero-2.webp')"></div>
+                <div class="carousel-item absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('assets/images/hero/hero-3.webp')"></div>
+                <div class="carousel-item absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('assets/images/hero/hero-4.webp')"></div>
+                <div class="carousel-item absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('assets/images/hero/hero-5.webp')"></div>
+                <div class="absolute inset-0 bg-zinc-950/50 z-10"></div>
+            </div>
+
+            <div class="relative z-20 px-8 md:px-20 max-w-5xl">
+                <span
+                    class="inline-block px-4 py-1 mb-6 rounded-full bg-white/20 backdrop-blur-md text-white text-sm font-bold tracking-[0.2em] uppercase">Vanguardia
+                    Miliciana</span>
+                <h1
+                    class="text-5xl md:text-8xl font-extrabold text-white leading-[0.8] tracking-tighter mb-8 animate-fade-in-up">
+                    Jóvenes <br /><span class="text-primary-fixed-dim">entregados</span> <br />a la misión
+                </h1>
+                <p
+                    class="text-lg md:text-xl text-white/90 max-w-2xl font-medium leading-relaxed mb-16 md:mb-20 opacity-80">
+                    Descubrimos nuestra Vocación, sirviendo a la Verdad y construyendo comunidad con el espiritu del
+                    Evangelio.
+                </p>
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <a href="#mapa-sedes"
+                        class="px-8 py-4 bg-primary text-white rounded-2xl font-bold text-lg shadow-2xl hover:scale-105 hover:bg-[#b9252b] transition-all flex items-center gap-2 group">
+                        Súmate a la aventura
+                        <span
+                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">explore</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Propuesta de Valor (Pilares) -->
+        <section class="py-24 md:py-32 px-8 md:px-20 bg-zinc-50 relative overflow-hidden">
+            <!-- Fondos decorativos aún más suaves -->
+            <div
+                class="absolute top-0 right-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px] -translate-y-1/2">
+            </div>
+            <div
+                class="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-zinc-200/50 rounded-full blur-[150px] translate-y-1/2">
+            </div>
+
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="text-center max-w-4xl mx-auto mb-16 md:mb-24 flex flex-col items-center">
+                    <h2 class="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900 mb-6 leading-[1.1]">
+                        <span class="text-primary italic">Esencia</span> que nos define y nos une
+                    </h2>
+                    <p
+                        class="text-xl md:text-2xl text-zinc-500 font-medium leading-relaxed max-w-2xl mx-auto text-center">
+                        Nuestro camino se define por estos pilares que guían cada paso que damos:
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <!-- Formación -->
+                    <div
+                        class="soft-premium-card px-8 md:px-10 py-10 md:py-12 rounded-[3rem] text-center relative overflow-hidden group flex flex-col">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                        </div>
+
+                        <div class="relative z-10 flex flex-col items-center h-full">
+                            <div
+                                class="w-24 h-24 shrink-0 rounded-3xl bg-zinc-50 flex items-center justify-center text-primary mb-10 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] border border-zinc-100/50">
+                                <span class="material-symbols-outlined text-5xl">menu_book</span>
+                            </div>
+                            <h3 class="text-3xl font-black mb-6 tracking-tight text-zinc-900 font-['Sora'] shrink-0">
+                                Formación</h3>
+                            <p class="text-zinc-500 leading-relaxed text-lg font-medium">
+                                Buscamos la Verdad con rigor intelectual. Formamos criterios sólidos para enfrentar los
+                                desafíos de un mundo que necesita luz y coherencia.
+                            </p>
+                        </div>
+                        <div
+                            class="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700">
+                        </div>
+                    </div>
+
+                    <!-- Comunidad -->
+                    <div
+                        class="soft-premium-card px-8 md:px-10 py-10 md:py-12 rounded-[3rem] text-center relative overflow-hidden group flex flex-col">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                        </div>
+
+                        <div class="relative z-10 flex flex-col items-center h-full">
+                            <div
+                                class="w-24 h-24 shrink-0 rounded-3xl bg-zinc-50 flex items-center justify-center text-primary mb-10 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] border border-zinc-100/50">
+                                <span class="material-symbols-outlined text-5xl">groups</span>
+                            </div>
+                            <h3 class="text-3xl font-black mb-6 tracking-tight text-zinc-900 font-['Sora'] shrink-0">
+                                Comunidad</h3>
+                            <p class="text-zinc-500 leading-relaxed text-lg font-medium">
+                                Más que un grupo, una hermandad. El servicio y la caridad son el cemento que une a los
+                                milicianos en una entrega total por el bien del otro.
+                            </p>
+                        </div>
+                        <div
+                            class="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700">
+                        </div>
+                    </div>
+
+                    <!-- Espiritualidad -->
+                    <div
+                        class="soft-premium-card px-8 md:px-10 py-10 md:py-12 rounded-[3rem] text-center relative overflow-hidden group flex flex-col">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                        </div>
+
+                        <div class="relative z-10 flex flex-col items-center h-full">
+                            <div
+                                class="w-24 h-24 shrink-0 rounded-3xl bg-zinc-50 flex items-center justify-center text-primary mb-10 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] border border-zinc-100/50">
+                                <span class="material-symbols-outlined text-5xl">auto_awesome</span>
+                            </div>
+                            <h3 class="text-3xl font-black mb-6 tracking-tight text-zinc-900 font-['Sora'] shrink-0">
+                                Espiritualidad</h3>
+                            <p class="text-zinc-500 leading-relaxed text-lg font-medium">
+                                Nuestra fuerza viene de lo alto. Vivimos una fe encarnada, valiente y profunda, donde la
+                                oración es el motor de toda nuestra acción miliciana.
+                            </p>
+                        </div>
+                        <div
+                            class="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patronos Section -->
+        <section class="py-24 md:py-32 px-8 md:px-20 bg-zinc-50">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-4 text-zinc-900">Nuestros Patronos
+                    </h2>
+                    <p class="text-zinc-500 font-medium text-lg">Modelos de vida que inspiran nuestra misión diaria.</p>
+                </div>
+                <div class="flex flex-col md:flex-row justify-center gap-10">
+                    <!-- Pier Giorgio card -->
+                    <div
+                        class="w-full max-w-sm rounded-[2rem] overflow-hidden bg-white shadow-xl hover:-translate-y-2 transition-transform duration-300">
+                        <div class="h-64 relative overflow-hidden">
+                            <img class="w-full h-full object-cover object-top"
+                                data-alt="classical portrait of a young athletic man in mountain gear with heroic and serene expression, vintage editorial style"
+                                src="assets/images/pier_giorgio.jpg" loading="lazy" />
+                            <div
+                                class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold">
+                                LEGADO</div>
+                        </div>
+                        <div class="p-8">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">mountain_flag</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-xl leading-none">Pier Giorgio Frassati</h3>
+                                    <p class="text-sm text-primary font-medium mt-1">Hacia lo alto</p>
+                                </div>
+                            </div>
+                            <p class="text-zinc-500 text-sm leading-relaxed mb-6">
+                                Apóstol de la juventud y el servicio a los pobres. Su fuerza en las montañas y su
+                                humildad en la ciudad son nuestro norte.
+                            </p>
+                            <div class="flex items-center justify-between pt-6 border-t border-surface-container">
+                                <span class="text-xs font-bold text-zinc-400">#Verso l'alto</span>
+                                <a href="pier_giorgio.html"
+                                    class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">Conocer
+                                    más <span class="material-symbols-outlined text-sm">open_in_new</span></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Santa Catalina card -->
+                    <div
+                        class="w-full max-w-sm rounded-[2rem] overflow-hidden bg-white shadow-xl hover:-translate-y-2 transition-transform duration-300">
+                        <div class="h-64 relative overflow-hidden">
+                            <img class="w-full h-full object-cover object-top"
+                                data-alt="artistic representation of a historical woman leader with a crown of thorns or halo, dramatic chiaroscuro lighting, spiritual intensity"
+                                src="assets/images/sta_catalina.jpg" loading="lazy" />
+                            <div
+                                class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold">
+                                VOZ</div>
+                        </div>
+                        <div class="p-8">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">auto_stories</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-xl leading-none">Sta. Catalina de Siena</h3>
+                                    <p class="text-sm text-primary font-medium mt-1">Coraje y Sabiduría</p>
+                                </div>
+                            </div>
+                            <p class="text-zinc-500 text-sm leading-relaxed mb-6">
+                                Doctora de la Iglesia y pilar de la verdad. Su valentía para hablar a los poderosos
+                                inspira nuestra integridad institucional.
+                            </p>
+                            <div class="flex items-center justify-between pt-6 border-t border-surface-container">
+                                <span class="text-xs font-bold text-zinc-400">#VerdadYFuego</span>
+                                <a href="sta_catalina.html"
+                                    class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">Conocer
+                                    más <span class="material-symbols-outlined text-sm">open_in_new</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Countdown Section (Estilo Claro y Rojo) -->
+        <section class="py-24 md:py-32 px-4 md:px-20 bg-[#fff8f0] relative overflow-hidden">
+            <div class="max-w-7xl mx-auto text-center relative z-10">
+                <div
+                    class="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/20 bg-white text-primary text-xs font-black tracking-[0.4em] uppercase mb-12 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                    Proximamente...
+                </div>
+
+                <h2
+                    class="text-5xl md:text-6xl font-['Sora'] font-extrabold text-[#960317] tracking-tighter mb-6 leading-none">
+                    Campamento <br />Nacional 2027</h2>
+                <p
+                    class="text-zinc-600 text-lg md:text-2xl font-medium mb-16 max-w-2xl mx-auto tracking-tight px-4 md:px-0">
+                    Una experiencia vocacional inolvidable, junto a jovenes universitarios de todo el país</p>
+
+                <!-- Countdown Grid -->
+                <div id="countdown"
+                    class="grid grid-cols-3 gap-3 md:gap-10 max-w-4xl mx-auto relative z-10 px-2 md:px-0">
+                    <!-- Dias -->
+                    <div
+                        class="soft-premium-card relative overflow-hidden bg-white p-4 md:p-10 rounded-2xl md:rounded-[3rem] flex flex-col items-center justify-center aspect-square md:aspect-auto md:h-64 group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+                        <div id="days"
+                            class="text-4xl md:text-8xl font-['Sora'] font-black text-transparent bg-clip-text bg-gradient-to-br from-[#960317] to-[#b9252b] mb-1 md:mb-2 tabular-nums tracking-tighter drop-shadow-sm relative z-10">
+                            00</div>
+                        <span
+                            class="text-zinc-500 font-['Sora'] font-bold uppercase tracking-[0.1em] md:tracking-[0.3em] text-[9px] md:text-sm relative z-10">Días</span>
+                    </div>
+                    <!-- Horas -->
+                    <div
+                        class="soft-premium-card relative overflow-hidden bg-white p-4 md:p-10 rounded-2xl md:rounded-[3rem] flex flex-col items-center justify-center aspect-square md:aspect-auto md:h-64 group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+                        <div id="hours"
+                            class="text-4xl md:text-8xl font-['Sora'] font-black text-transparent bg-clip-text bg-gradient-to-br from-[#960317] to-[#b9252b] mb-1 md:mb-2 tabular-nums tracking-tighter drop-shadow-sm relative z-10">
+                            00</div>
+                        <span
+                            class="text-zinc-500 font-['Sora'] font-bold uppercase tracking-[0.1em] md:tracking-[0.3em] text-[9px] md:text-sm relative z-10">Horas</span>
+                    </div>
+                    <!-- Minutos -->
+                    <div
+                        class="soft-premium-card relative overflow-hidden bg-white p-4 md:p-10 rounded-2xl md:rounded-[3rem] flex flex-col items-center justify-center aspect-square md:aspect-auto md:h-64 group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+                        <div id="minutes"
+                            class="text-4xl md:text-8xl font-['Sora'] font-black text-transparent bg-clip-text bg-gradient-to-br from-[#960317] to-[#b9252b] mb-1 md:mb-2 tabular-nums tracking-tighter drop-shadow-sm relative z-10">
+                            00</div>
+                        <span
+                            class="text-zinc-500 font-['Sora'] font-bold uppercase tracking-[0.1em] md:tracking-[0.3em] text-[9px] md:text-sm relative z-10">Minutos</span>
+                    </div>
+                </div>
+
+                <div class="mt-16 md:mt-20 flex flex-col md:flex-row items-center justify-center gap-6 px-4 md:px-0">
+                    <button
+                        class="w-full md:w-auto px-12 py-4 md:py-5 bg-gradient-to-br from-[#960317] to-[#b9252b] text-white rounded-[2rem] font-black text-lg md:text-xl hover:scale-105 active:scale-95 transition-all shadow-[0_20px_50px_rgba(150,3,23,0.3)] border border-[#960317]/50">
+                        PROXIMAMENTE
+                    </button>
+                    <a href="#"
+                        class="text-zinc-500 hover:text-[#960317] font-bold uppercase tracking-widest text-xs md:text-sm transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg md:text-xl">info</span> Detalles del Evento
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer Shell -->
+    <footer
+        class="w-full border-t border-zinc-200/10 bg-zinc-950 flex flex-col md:flex-row justify-between items-center px-12 py-12">
+        <div class="flex flex-col items-center md:items-start gap-4 mb-8 md:mb-0">
+            <div class="flex items-center gap-3">
+                <img alt="Logo" class="h-8 w-auto grayscale brightness-200" src="assets/images/favicon.png"
+                    style="height: 32px;" />
+                <span class="text-xl font-black tracking-tighter text-white">MILICIANOS</span>
+            </div>
+            <span class="font-medium text-xs tracking-wide uppercase text-zinc-500">© 2026 Legado Moderno en
+                Acción.</span>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-10 font-bold text-xs uppercase tracking-widest">
+            <a class="text-zinc-400 hover:text-primary transition-all flex items-center gap-2"
+                href="https://www.instagram.com/juventudes.ar/" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg"
+                    class="w-4 h-4 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
+                    alt="Instagram">
+                Instagram
+            </a>
+            <a class="text-zinc-400 hover:text-white transition-all" href="bien-comun-2026.html">Formación</a>
+            <a class="text-zinc-400 hover:text-white transition-all" href="promesas.html">Promesas</a>
+            <a class="text-zinc-400 hover:text-white transition-all" href="#">Contacto</a>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay"
+        class="fixed inset-0 z-[100] bg-white/60 dark:bg-zinc-950/70 backdrop-blur-xl hidden flex-col justify-center items-center opacity-0 transition-opacity duration-300 w-full h-full">
+        <button
+            class="mobile-menu-close absolute top-6 right-8 p-2 text-zinc-800 dark:text-white hover:text-[#960317] transition-colors z-[110]">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+        <div
+            class="flex flex-col items-center justify-center gap-8 font-['Sora'] text-3xl font-bold tracking-tight w-full pointer-events-auto">
+            <a class="text-[#960317] border-b-2 border-[#960317] pb-1 transition-all" href="index.html">Misión</a>
+            <a class="text-zinc-800 dark:text-zinc-200 hover:text-[#960317] dark:hover:text-[#b9252b] transition-colors"
+                href="bien-comun-2026.html">Eje Formativo</a>
+            <a class="text-zinc-800 dark:text-zinc-200 hover:text-[#960317] dark:hover:text-[#b9252b] transition-colors"
+                href="promesas.html">Promesas</a>
+            <a class="text-zinc-800 dark:text-zinc-200 hover:text-[#960317] dark:hover:text-[#b9252b] transition-colors"
+                href="foro.html">Foro</a>
+
+            <div class="flex flex-col items-center gap-4 mt-8 w-11/12 max-w-sm">
+                <button
+                    class="w-full py-4 rounded-xl text-zinc-600 dark:text-zinc-400 font-semibold border border-zinc-200 dark:border-zinc-800 active:scale-95 transition-transform text-xl bg-white/50 backdrop-blur-md">Login</button>
+                <button
+                    class="w-full py-4 bg-gradient-to-br from-[#960317] to-[#b9252b] text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform text-xl">Unirse</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

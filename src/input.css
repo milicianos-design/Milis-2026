@@ -1,0 +1,232 @@
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  @layer utilities {
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    /* Scroll Stack Styles */
+    .scroll-stack-scroller {
+      position: relative;
+      width: 100%;
+      overflow-x: visible;
+    }
+
+    .scroll-stack-inner {
+      padding-bottom: 20rem;
+      /* Space for the last card to scroll out if needed */
+    }
+
+    .scroll-stack-card {
+      transform-origin: top center;
+      will-change: transform, filter;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      min-height: 18rem;
+      width: 100%;
+      margin: 30px 0;
+      padding: 3rem;
+      border-radius: 40px;
+      box-sizing: border-box;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .scroll-stack-end {
+      width: 100%;
+      height: 1px;
+    }
+
+    /* Premium Quill Video Embed Styling */
+    .ql-video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 1.5rem;
+      margin: 2.5rem 0;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(200, 200, 200, 0.2);
+      transition: all 0.3s ease;
+      background-color: #f4f4f5; /* zinc-100 */
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ql-video {
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(63, 63, 70, 0.5); /* zinc-700 */
+        background-color: #18181b; /* zinc-900 */
+      }
+    }
+
+    /* WYSIWYG Standard NYT Editor Formatting */
+    .ql-editor h1 {
+      font-family: 'Sora', sans-serif !important;
+      font-size: 2.5rem !important;
+      font-weight: 800 !important;
+      line-height: 1.2 !important;
+      margin-bottom: 1rem !important;
+      margin-top: 2rem !important;
+      letter-spacing: -0.05em !important;
+    }
+    
+    .ql-editor h2 {
+      font-family: 'Sora', sans-serif !important;
+      font-size: 1.875rem !important;
+      font-weight: 700 !important;
+      line-height: 1.3 !important;
+      margin-bottom: 0.75rem !important;
+      margin-top: 1.5rem !important;
+      letter-spacing: -0.025em !important;
+    }
+    
+    .ql-editor p {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 1.125rem !important;
+      line-height: 1.8 !important;
+      margin-bottom: 1.25rem !important;
+      color: inherit;
+    }
+    
+    .ql-editor strong {
+      font-weight: 700 !important;
+      color: inherit;
+    }
+    
+    .ql-editor blockquote {
+      border-left: 4px solid #960317 !important;
+      padding-left: 1.5rem !important;
+      margin-left: 0 !important;
+      font-style: italic !important;
+      font-size: 1.25rem !important;
+      color: #71717a !important; /* zinc-500 */
+    }
+
+    .ql-editor ul, .ql-editor ol {
+      padding-left: 1.5rem !important;
+      margin-bottom: 1.25rem !important;
+    }
+    
+    .ql-editor li {
+      margin-bottom: 0.5rem !important;
+      font-size: 1.125rem !important;
+      line-height: 1.8 !important;
+    }
+    
+    .ql-editor a {
+      color: #960317 !important;
+      text-decoration: underline !important;
+      text-decoration-thickness: 2px !important;
+      text-underline-offset: 4px !important;
+      transition: color 0.2s ease !important;
+    }
+    
+    .ql-editor a:hover {
+      color: #b9252b !important;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .ql-editor blockquote {
+        color: #a1a1aa !important; /* zinc-400 */
+      }
+      .ql-editor a {
+        color: #ef4444 !important; /* red-500 */
+      }
+      .ql-editor a:hover {
+        color: #f87171 !important; /* red-400 */
+      }
+    }
+
+  /* Editor.js Custom Milicianos Styling */
+  .ce-block__content, .ce-toolbar__content {
+      max-width: 100% !important; /* Allow full width, let tailwind container handle width */
+  }
+  
+  .ce-header {
+      font-family: 'Sora', sans-serif !important;
+      font-weight: 900 !important;
+      color: #18181b !important; /* zinc-900 */
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      letter-spacing: -0.02em;
+  }
+  
+  .dark .ce-header {
+      color: #e4e4e7 !important; /* zinc-200 */
+  }
+
+  .ce-paragraph {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      line-height: 1.8 !important;
+      margin-bottom: 1.25em !important;
+  }
+  
+  .cdx-quote {
+      border-left: 4px solid #960317 !important; /* Primary Milicianos Red */
+      padding: 1.5rem 2rem !important;
+      margin: 2rem 0 !important;
+      background-color: #fafafa;
+      border-radius: 0 1rem 1rem 0;
+  }
+  .dark .cdx-quote {
+      background-color: #18181b;
+  }
+  
+  .cdx-quote__text {
+      font-family: 'Sora', sans-serif !important;
+      font-size: 1.25rem !important;
+      font-style: italic !important;
+      color: #27272a !important;
+      line-height: 1.6 !important;
+  }
+  .dark .cdx-quote__text { color: #d4d4d8 !important; }
+
+  /* Responsive Video Embeds for Editor.js and Rendered Output */
+  .ce-reader iframe,
+  .cdx-block iframe,
+  .embed-tool__caption {
+      width: 100% !important;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  
+  .ce-reader iframe, .cdx-block iframe {
+      aspect-ratio: 16 / 9;
+      height: auto;
+  }
+  
+  .ce-reader h1, .ce-reader h2, .ce-reader h3 {
+      font-family: 'Sora', sans-serif !important;
+      font-weight: 900 !important;
+      margin-top: 2em;
+      margin-bottom: 1em;
+      line-height: 1.2;
+  }
+  .ce-reader h1 { font-size: 2.25rem; }
+  .ce-reader h2 { font-size: 1.875rem; }
+  .ce-reader h3 { font-size: 1.5rem; }
+  
+  .ce-reader p {
+      line-height: 1.8;
+      margin-bottom: 1.5em;
+  }
+  
+  .ce-reader ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.5em;
+  }
+  .ce-reader ol {
+      list-style-type: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1.5em;
+  }
+  .ce-reader li { margin-bottom: 0.5em; }
+  }

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promesas - Milicianos</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="stylesheet" href="css/output.css">
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="/js/main.js"></script>
+</head>
+<body class="bg-[#fff8f0] dark:bg-zinc-950 font-['Plus_Jakarta_Sans'] text-zinc-900 dark:text-zinc-100 selection:bg-[#960317]/20">
+    <!-- TopNavBar Shell -->
+    <nav class="sticky top-0 w-full z-50 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(30,27,21,0.06)] dark:shadow-[0px_20px_40px_rgba(0,0,0,0.4)] flex justify-between items-center px-8 py-4 border-b border-zinc-200/20 max-w-full transition-all duration-300">
+        <div class="flex items-center gap-4">
+            <img src="assets/images/favicon.png" alt="Milicianos Logo" class="h-10 w-auto">
+            <span class="text-2xl font-extrabold tracking-tighter text-[#960317] dark:text-[#b9252b]">Milicianos</span>
+        </div>
+        <div class="hidden md:flex gap-8 items-center">
+            <a href="index.html" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 font-semibold tracking-tight transition-all duration-300 hover:scale-105">Misión</a>
+            <a href="bien-comun-2026.html" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 font-semibold tracking-tight transition-all duration-300 hover:scale-105">Eje Formativo</a>
+            <a href="promesas.html" class="text-[#960317] dark:text-[#b9252b] border-b-2 border-[#960317] pb-1 font-semibold tracking-tight transition-all duration-300 hover:scale-105">Promesas</a>
+            <a href="foro.html" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 font-semibold tracking-tight transition-all duration-300 hover:scale-105">Foro</a>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div class="hidden md:flex gap-4 items-center">
+                <button class="px-5 py-2 text-sm font-bold text-[#960317] hover:opacity-80 transition-transform active:scale-95">Login</button>
+                <button class="px-5 py-2 text-sm font-bold bg-[#960317] text-white rounded-lg hover:bg-[#b9252b] transition-colors shadow-md active:scale-95">Unirse</button>
+            </div>
+            <button class="mobile-menu-btn md:hidden p-2 text-zinc-800 dark:text-zinc-200 hover:text-[#960317] transition-colors">
+                <span class="material-symbols-outlined text-3xl">menu</span>
+            </button>
+        </div>
+    </nav>
+    <main class="max-w-5xl mx-auto px-6 py-16 md:py-24">
+        <!-- Hero Header with Image -->
+        <header class="relative w-full rounded-[2.5rem] h-[550px] flex items-center justify-center overflow-hidden mb-12 shadow-2xl group">
+            <div class="absolute inset-0 z-0">
+                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms] ease-out" src="assets/images/hero_promesas.webp" alt="Juventud y promesas">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/95 via-zinc-900/60 to-zinc-900/30 mix-blend-multiply"></div>
+                <div class="absolute inset-0 bg-[#960317]/10 mix-blend-overlay"></div>
+            </div>
+            
+            <div class="relative z-10 w-full max-w-4xl px-4 md:px-8 flex flex-col items-center text-center mt-8">
+                <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#ffb3ae] mb-6 bg-[#960317]/30 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#ffb3ae]/20 shadow-sm animate-fade-in">Compromisos</span>
+                
+                <h1 class="text-4xl md:text-7xl font-['Sora'] font-extrabold text-white mb-6 tracking-tight drop-shadow-lg leading-[1.1]">Formulación <br class="md:hidden"> de Promesas</h1>
+                
+                <p class="text-white/90 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mb-12 drop-shadow-md font-['Plus_Jakarta_Sans']">
+                    El núcleo del compromiso de cada miliciano. Ellas definen nuestra vocación, rigen nuestras acciones y nos mantienen firmes en la misión dentro del mundo contemporáneo.
+                </p>
+                
+                <!-- Botón Proceso de Formulación (Moved INSIDE Hero) -->
+                <a href="https://drive.google.com/file/d/11OuFnU3BoOPr7SBbfRp9zDpFuv36gUj9/view" target="_blank" class="w-full md:w-auto h-16 bg-gradient-to-r from-[#960317] to-[#b9252b] text-white font-bold rounded-2xl flex items-center justify-between md:justify-center gap-6 px-10 shadow-[0_15px_40px_rgba(150,3,23,0.5)] active:scale-[0.98] hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(150,3,23,0.6)] transition-all border border-red-500/20">
+                    <div class="flex items-center gap-4">
+                        <span class="font-['Sora'] tracking-wide text-lg">Proceso de Formulación</span>
+                        <span class="bg-white text-[#960317] text-[9px] uppercase font-black px-2 py-1 rounded-md tracking-widest shadow-sm">Nuevo</span>
+                    </div>
+                    <span class="material-symbols-outlined text-2xl md:ml-4">arrow_forward</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Intro Text Block -->
+        <section class="mb-16">
+            <div class="bg-white/70 dark:bg-zinc-900/50 backdrop-blur-md rounded-3xl p-8 md:p-10 shadow-sm border border-zinc-200 dark:border-zinc-800/50 space-y-6">
+                <p class="text-zinc-700 dark:text-zinc-300 leading-relaxed text-base md:text-lg font-medium">
+                    El proceso de Formulación de Promesas en la Agrupación Milicianos representa mucho más que una instancia de formación académica o sapiencial; es un auténtico discernimiento vocacional.
+                </p>
+                <div class="w-12 h-1 bg-gradient-to-r from-[#960317] to-transparent rounded-full"></div>
+                <p class="text-zinc-700 dark:text-zinc-300 leading-relaxed text-base md:text-lg font-medium">
+                    Este camino invita al miliciano a una maduración integral —espiritual, doctrinal y apostólica— donde el compromiso asumido no se vive como una meta alcanzada, sino como un punto de partida hacia un estilo de vida transformador.
+                </p>
+            </div>
+        </section>
+
+        <!-- 3. Material de Estudio -->
+        <section class="mb-16">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+                <div>
+                    <h3 class="font-['Sora'] font-extrabold text-3xl text-[#960317] mb-2">Material de Estudio</h3>
+                    <p class="text-zinc-600 font-medium">Recursos formativos y documentos fundamentales.</p>
+                </div>
+                <a href="https://drive.google.com/file/d/1PB7h5hkvnbjZ8ah6Ly-4_iGJdw_yFjR_/view" target="_blank" class="mt-4 md:mt-0 px-6 py-3 bg-white border border-zinc-200 text-[#960317] font-bold rounded-2xl flex items-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+                    <span class="material-symbols-outlined text-xl">menu_book</span>
+                    <span class="font-['Sora'] text-sm">Índice de Material</span>
+                </a>
+            </div>
+
+            <!-- Carrusel de Temas (nuevo) -->
+            <div class="-mx-6 md:mx-0 overflow-hidden relative group/carousel">
+                <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#fff8f0] to-transparent z-10 pointer-events-none hidden md:block"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#fff8f0] to-transparent z-10 pointer-events-none hidden md:block"></div>
+                
+                <button onclick="document.getElementById('temas-carousel').scrollBy({left: -320, behavior: 'smooth'})" class="absolute left-2 top-[40%] -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-md text-[#960317] border border-zinc-200 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl">
+                    <span class="material-symbols-outlined text-2xl md:text-3xl">chevron_left</span>
+                </button>
+                <button onclick="document.getElementById('temas-carousel').scrollBy({left: 320, behavior: 'smooth'})" class="absolute right-2 top-[40%] -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-white/90 backdrop-blur-md text-[#960317] border border-zinc-200 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl">
+                    <span class="material-symbols-outlined text-2xl md:text-3xl">chevron_right</span>
+                </button>
+                
+                <div id="temas-carousel" class="flex overflow-x-auto gap-6 pb-6 pt-2 px-6 md:px-4 hide-scrollbar scroll-smooth relative z-0">
+                    
+                    <!-- Tema 1 -->
+                    <a href="https://drive.google.com/file/d/1-kZIRUOJY-ibgDQJmRvYxCKBu0nrpzJJ/view?usp=drive_link" target="_blank" class="shrink-0 w-[85%] md:w-[280px] aspect-[4/3] bg-zinc-800 rounded-2xl relative flex flex-col justify-end overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-zinc-900 z-0 group-hover:scale-110 transition-transform duration-700">
+                            <img src="assets/images/tema1.jpg" alt="Fasta como Movimiento de la Iglesia" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div class="relative z-10 p-6">
+                            <span class="text-[#ffb3ae] font-['Sora'] font-black text-sm mb-1 block">Tema 1</span>
+                            <h4 class="text-white font-['Sora'] font-bold leading-snug">Fasta como Movimiento de la Iglesia</h4>
+                        </div>
+                    </a>
+
+                    <!-- Tema 2 -->
+                    <a href="https://drive.google.com/file/d/1QufU9M_t3fmAeMGzPfd_QCZv_cU0cs1G/view?usp=drive_link" target="_blank" class="shrink-0 w-[85%] md:w-[280px] aspect-[4/3] bg-zinc-800 rounded-2xl relative flex flex-col justify-end overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-zinc-900 z-0 group-hover:scale-110 transition-transform duration-700">
+                            <img src="assets/images/tema2.jpg" alt="Fasta como Institución" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div class="relative z-10 p-6">
+                            <span class="text-[#ffb3ae] font-['Sora'] font-black text-sm mb-1 block">Tema 2</span>
+                            <h4 class="text-white font-['Sora'] font-bold leading-snug">Fasta como Institución</h4>
+                        </div>
+                    </a>
+
+                    <!-- Tema 3 -->
+                    <a href="https://drive.google.com/file/d/1i3cIlTSVdNX7YRLTsBS7ndChvVIrX2Mo/view?usp=sharing" target="_blank" class="shrink-0 w-[85%] md:w-[280px] aspect-[4/3] bg-zinc-800 rounded-2xl relative flex flex-col justify-end overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-zinc-900 z-0 group-hover:scale-110 transition-transform duration-700">
+                            <img src="assets/images/tema3.jpg" alt="Carisma y espiritualidad de Fasta" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div class="relative z-10 p-6">
+                            <span class="text-[#ffb3ae] font-['Sora'] font-black text-sm mb-1 block">Tema 3</span>
+                            <h4 class="text-white font-['Sora'] font-bold leading-snug">Carisma y espiritualidad de Fasta</h4>
+                        </div>
+                    </a>
+
+                    <!-- Tema 4 -->
+                    <a href="https://drive.google.com/file/d/1q2NI7J71VKsriXuCAl50ElCz_Ero4IFW/view?usp=drive_link" target="_blank" class="shrink-0 w-[85%] md:w-[280px] aspect-[4/3] bg-zinc-800 rounded-2xl relative flex flex-col justify-end overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-zinc-900 z-0 group-hover:scale-110 transition-transform duration-700">
+                            <img src="assets/images/tema4.jpg" alt="Ciudad Miliciana" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div class="relative z-10 p-6">
+                            <span class="text-[#ffb3ae] font-['Sora'] font-black text-sm mb-1 block">Tema 4</span>
+                            <h4 class="text-white font-['Sora'] font-bold leading-snug">Ciudad Miliciana</h4>
+                        </div>
+                    </a>
+
+                    <!-- Tema 5 -->
+                    <a href="https://drive.google.com/file/d/1vxA4K4sBh-cFL27hyWuxoz9otagRUIWj/view?usp=drive_link" target="_blank" class="shrink-0 w-[85%] md:w-[280px] aspect-[4/3] bg-zinc-800 rounded-2xl relative flex flex-col justify-end overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-zinc-900 z-0 group-hover:scale-110 transition-transform duration-700">
+                            <img src="assets/images/tema5.jpg" alt="Santos patronos y Fundador de Fasta" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div class="relative z-10 p-6">
+                            <span class="text-[#ffb3ae] font-['Sora'] font-black text-sm mb-1 block">Tema 5</span>
+                            <h4 class="text-white font-['Sora'] font-bold leading-snug">Santos patronos y Fundador de Fasta</h4>
+                        </div>
+                    </a>
+
+                    <!-- Tema 6 -->
+                    <a href="https://drive.google.com/file/d/1zDg0Ke0fahiAczOgVJe1MmFhnny63wEX/view?usp=drive_link" target="_blank" class="shrink-0 w-[85%] md:w-[280px] aspect-[4/3] bg-zinc-800 rounded-2xl relative flex flex-col justify-end overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-zinc-900 z-0 group-hover:scale-110 transition-transform duration-700">
+                            <img src="assets/images/tema6.jpg" alt="Promesas y Apostolado" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div class="relative z-10 p-6">
+                            <span class="text-[#ffb3ae] font-['Sora'] font-black text-sm mb-1 block">Tema 6</span>
+                            <h4 class="text-white font-['Sora'] font-bold leading-snug">Promesas y Apostolado</h4>
+                        </div>
+                    </a>
+
+                    <!-- Spacer -->
+                    <div class="shrink-0 w-4 md:w-16"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Protocolos -->
+        <section class="mb-20">
+            <div class="mb-8">
+                <h3 class="font-['Sora'] font-extrabold text-3xl text-[#960317] mb-2">Protocolos Oficiales</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="https://drive.google.com/file/d/1f8RQc9Itkxr6azpU7FBAxIPpwDUboguw/view?usp=sharing" target="_blank" class="px-6 py-5 bg-white border border-zinc-200 text-[#960317] font-bold rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group">
+                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">description</span>
+                    <span class="font-['Sora'] text-sm tracking-wide">Protocolo de Cartas</span>
+                </a>
+                <a href="https://drive.google.com/file/d/1X5qwHEKFN0DLWTcknS1Bw-phu_y-olX9/view?usp=sharing" target="_blank" class="px-6 py-5 bg-white border border-zinc-200 text-[#960317] font-bold rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group">
+                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">assignment</span>
+                    <span class="font-['Sora'] text-sm tracking-wide">Toma de Exámenes</span>
+                </a>
+                <a href="https://drive.google.com/file/d/1J879RkDkmLXGgnHgK54R7Fsc0ZjmW3km/view?usp=sharing" target="_blank" class="px-6 py-5 bg-white border border-zinc-200 text-[#960317] font-bold rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group">
+                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">account_balance</span>
+                    <span class="font-['Sora'] text-sm tracking-wide">Protocolo Ceremonia</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 5. Horizontal Carousel for Promises -->
+        <section class="mb-16 -mx-6 md:mx-0 overflow-hidden relative group/carousel">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 px-6 md:px-0">
+                <h3 class="font-['Sora'] font-extrabold text-3xl text-[#960317]">Las Promesas Milicianas</h3>
+                <div class="hidden md:flex gap-3">
+                    <button id="promises-prev" class="w-10 h-10 bg-white border border-zinc-200 text-[#960317] rounded-full carousel-control flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">chevron_left</span>
+                    </button>
+                    <button id="promises-next" class="w-10 h-10 bg-white border border-zinc-200 text-[#960317] rounded-full carousel-control flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-2xl">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile arrows overlay -->
+            <button id="promises-prev-mobile" class="md:hidden absolute left-2 top-[55%] -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-md text-[#960317] border border-zinc-200 rounded-full carousel-control flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl">
+                <span class="material-symbols-outlined text-2xl">chevron_left</span>
+            </button>
+            <button id="promises-next-mobile" class="md:hidden absolute right-2 top-[55%] -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-md text-[#960317] border border-zinc-200 rounded-full carousel-control flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl">
+                <span class="material-symbols-outlined text-2xl">chevron_right</span>
+            </button>
+
+            <!-- Scroll fade effects -->
+            <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#fff8f0] to-transparent z-10 pointer-events-none hidden md:block mt-[68px]"></div>
+            <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#fff8f0] to-transparent z-10 pointer-events-none hidden md:block mt-[68px]"></div>
+            
+            <div id="promises-carousel" class="flex overflow-x-auto gap-6 pb-6 pt-2 px-6 md:px-4 hide-scrollbar snap-x snap-proximity relative z-0" style="will-change: scroll-position; transform: translateZ(0);">
+                
+                <!-- Promise Card 1 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_01.webp" alt="Amor a Dios" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">01</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Construir toda la vida en el amor a Dios y al prójimo.</p>
+                </div>
+                
+                <!-- Promise Card 2 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_02.webp" alt="Servicio" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">02</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Dedicar el esfuerzo personal al servicio de la Iglesia y la Patria en la unidad de sus hombres.</p>
+                </div>
+
+                <!-- Promise Card 3 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_03.webp" alt="Alegría" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">03</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Hacer de la vida, con alegría y humildad, un acto permanente de servicio.</p>
+                </div>
+
+                <!-- Promise Card 4 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_04.webp" alt="Estudio" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">04</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Recordar que el estudio y el trabajo constituyen la aportación personal a la tarea común.</p>
+                </div>
+
+                <!-- Promise Card 5 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_05.webp" alt="Hermandad" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">05</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Vivir en hermandad con los compañeros de Fraternidad, siempre sobrio en el uso de los derechos y generoso en el uso de los deberes.</p>
+                </div>
+
+                <!-- Promise Card 6 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_06.webp" alt="Justicia" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">06</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Defender la justicia y luchar con amor cristiano por imponerla, aunque su triunfo signifique un mayor sacrificio para mí.</p>
+                </div>
+
+                <!-- Promise Card 7 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_07.webp" alt="Libertad" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">07</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Afirmar la libertad de cada hombre sometiendo la propia al imperio de la norma justa y al respeto de los superiores.</p>
+                </div>
+
+                <!-- Promise Card 8 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_08.webp" alt="Dignidad" class="w-full h-full object-cover opacity-75 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">08</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Mantener con dignidad la condición de joven y aceptar con gratitud la enseñanza de los mayores.</p>
+                </div>
+
+                <!-- Promise Card 9 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_09.webp" alt="Magisterio" class="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">09</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Aceptar con gratitud el magisterio de la Iglesia y la dirección de su jerarquía.</p>
+                </div>
+
+                <!-- Promise Card 10 -->
+                <div class="snap-center shrink-0 w-[85%] md:w-[320px] aspect-[4/5] bg-zinc-900 rounded-2xl p-8 relative flex flex-col justify-end overflow-hidden border border-white/10 shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
+                    <div class="absolute inset-0 z-0">
+                        <img src="assets/images/promesa_10.webp" alt="Fidelidad" class="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    </div>
+                    <span class="absolute top-6 left-6 font-['Sora'] font-black text-6xl text-white/10 group-hover:text-white/20 transition-colors">10</span>
+                    <p class="text-white font-['Sora'] font-bold leading-snug text-lg md:text-xl relative z-10">Ser fiel a estos ideales para vivir activamente el estilo de la Fraternidad de Agrupaciones Santo Tomás de Aquino.</p>
+                </div>
+
+                <!-- Carousel Peek spacer -->
+                <div class="snap-center shrink-0 w-4 md:w-16"></div>
+            </div>
+            
+            <style>
+                .hide-scrollbar::-webkit-scrollbar { display: none; }
+                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            </style>
+        </section>
+
+        <!-- Sección de Fechas Importantes (Timeline Interactivo) -->
+        <section class="mb-16">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+                <div>
+                    <h3 class="font-['Sora'] font-extrabold text-3xl text-[#960317] mb-2">Cronograma de Formulación</h3>
+                    <p class="text-zinc-600 font-medium">Anticipate a las fechas vitales del proceso en curso.</p>
+                </div>
+                
+                <!-- Botón Original Mejorado e Independizado -->
+                <a href="https://docs.google.com/document/d/1-lay3ZL4wlxHXnWdMCLWZkTNSmnMJSn3We4t5_cemwU/edit?usp=sharing" target="_blank" class="mt-4 md:mt-0 h-[52px] bg-white border border-zinc-200 text-[#960317] font-bold rounded-xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-1 active:scale-[0.98] transition-all px-6">
+                    <span class="material-symbols-outlined text-xl">calendar_month</span>
+                    <span class="font-['Sora'] text-sm tracking-wide">Ver Documento Oficial Completo</span>
+                </a>
+            </div>
+
+            <!-- Scroll Stack Area -->
+            <div class="scroll-stack-scroller mt-10">
+                <div class="scroll-stack-inner flex flex-col items-center">
+                    
+                    <!-- Hito 1: Presentación de Carta -->
+                    <div class="scroll-stack-card glass-card border border-zinc-200 dark:border-zinc-800 shadow-xl max-w-2xl px-10 py-12 md:px-16 md:py-16">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-[#960317] text-white flex items-center justify-center font-black text-xl shadow-lg z-20">1</div>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[#960317] dark:text-[#b9252b] shadow-inner shrink-0">
+                                <span class="material-symbols-outlined text-5xl">description</span>
+                            </div>
+                            <div class="text-center md:text-left">
+                                <h4 class="font-['Sora'] font-black text-2xl text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">Presentación de Carta</h4>
+                                <p class="text-zinc-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed font-medium">
+                                    Carta al Jefe de Ruca para explicar las motivaciones que nos impulsan a querer formular.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hito 2: Examen Escrito -->
+                    <div class="scroll-stack-card glass-card border border-zinc-200 dark:border-zinc-800 shadow-xl max-w-2xl px-10 py-12 md:px-16 md:py-16">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-[#960317] text-white flex items-center justify-center font-black text-xl shadow-lg z-20">2</div>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[#960317] dark:text-[#b9252b] shadow-inner shrink-0">
+                                <span class="material-symbols-outlined text-5xl">edit_note</span>
+                            </div>
+                            <div class="text-center md:text-left">
+                                <h4 class="font-['Sora'] font-black text-2xl text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">Examen Escrito</h4>
+                                <p class="text-zinc-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed font-medium">
+                                    Primer instancia formativa para hacer mas consciente y comprometida la decisión.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hito 3: Experiencias -->
+                    <div class="scroll-stack-card glass-card border border-zinc-200 dark:border-zinc-800 shadow-xl max-w-2xl px-10 py-12 md:px-16 md:py-16">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-[#960317] text-white flex items-center justify-center font-black text-xl shadow-lg z-20">3</div>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[#960317] dark:text-[#b9252b] shadow-inner shrink-0">
+                                <span class="material-symbols-outlined text-5xl">groups</span>
+                            </div>
+                            <div class="text-center md:text-left">
+                                <h4 class="font-['Sora'] font-black text-2xl text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">Experiencias</h4>
+                                <p class="text-zinc-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed font-medium">
+                                    Actividades grupales para profundizar el discernimiento.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hito 4: Examen Oral -->
+                    <div class="scroll-stack-card glass-card border border-zinc-200 dark:border-zinc-800 shadow-xl max-w-2xl px-10 py-12 md:px-16 md:py-16">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-[#960317] text-white flex items-center justify-center font-black text-xl shadow-lg z-20">4</div>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[#960317] dark:text-[#b9252b] shadow-inner shrink-0">
+                                <span class="material-symbols-outlined text-5xl">record_voice_over</span>
+                            </div>
+                            <div class="text-center md:text-left">
+                                <h4 class="font-['Sora'] font-black text-2xl text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">Examen Oral</h4>
+                                <p class="text-zinc-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed font-medium">
+                                    Instancia final formativa del proceso de formulación.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hito 5: Jornada Espiritual -->
+                    <div class="scroll-stack-card glass-card border border-zinc-200 dark:border-zinc-800 shadow-xl max-w-2xl px-10 py-12 md:px-16 md:py-16">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-[#960317] text-white flex items-center justify-center font-black text-xl shadow-lg z-20">5</div>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[#960317] dark:text-[#b9252b] shadow-inner shrink-0">
+                                <span class="material-symbols-outlined text-5xl">auto_awesome</span>
+                            </div>
+                            <div class="text-center md:text-left">
+                                <h4 class="font-['Sora'] font-black text-2xl text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">Jornada Espiritual</h4>
+                                <p class="text-zinc-600 dark:text-zinc-400 text-base md:text-lg leading-relaxed font-medium">
+                                    Un momento privilegiado para dialogar con Jesús y dialogar con Él este compromiso.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hito 6: Formulación de Promesas (Highlighted) -->
+                    <div class="scroll-stack-card bg-gradient-to-br from-[#960317] to-[#b9252b] shadow-2xl max-w-2xl px-10 py-12 md:px-16 md:py-16 border border-white/10">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-white text-[#960317] flex items-center justify-center font-black text-xl shadow-lg z-20 animate-pulse">6</div>
+                        <!-- Sparkle overlay -->
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
+                        <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                            <div class="w-20 h-20 rounded-3xl bg-white/20 flex items-center justify-center text-white shadow-inner backdrop-blur-md shrink-0">
+                                <span class="material-symbols-outlined text-5xl">local_fire_department</span>
+                            </div>
+                            <div class="text-center md:text-left">
+                                <h4 class="font-['Sora'] font-black text-2xl text-white mb-4 leading-tight uppercase tracking-wide">Formulación de Promesas</h4>
+                                <p class="text-white/90 text-base md:text-lg leading-relaxed font-bold">
+                                    El hito final donde prometo publicamente junto a la comunidad.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scroll-stack-end" />
+                </div>
+            </div>
+        </section>
+
+        <!-- Decorative Info Card (Full Width) -->
+        <section class="mb-12">
+            <div class="bg-[#f0f9f5] dark:bg-[#1D322E]/20 border border-[#6acfa3]/30 dark:border-[#6acfa3]/10 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row gap-6 items-start md:items-center w-full shadow-sm hover:shadow-md transition-shadow">
+                <div class="w-16 h-16 rounded-2xl bg-[#6acfa3] flex items-center justify-center shrink-0 shadow-md">
+                    <span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">info</span>
+                </div>
+                <div>
+                    <h4 class="font-['Sora'] font-bold text-[#1D322E] dark:text-[#6acfa3] mb-2 text-xl">Renovación Anual Permanente</h4>
+                    <p class="text-base text-[#2A4B45] dark:text-zinc-300 leading-relaxed font-medium">
+                        Las promesas de los miembros plenos se renuevan anualmente en cada ciudad durante la Solemne Misa de Pentecostés. Es momento sagrado y obligatorio de reavivar el fuego y reafirmar la vocación apostólica abrazando las mismas palabras con mayor madurez.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#fff8f0] dark:bg-zinc-950 w-full border-t border-zinc-200/20 flex flex-col md:flex-row justify-between items-center px-12 py-10">
+        <div class="mb-6 md:mb-0">
+            <p class="font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase text-zinc-500">© 2024 Milicianos. Legado Moderno en Acción.</p>
+        </div>
+        <div class="flex gap-8">
+            <a href="#" class="font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase text-zinc-500 hover:text-[#960317] hover:translate-y-[-2px] transition-transform duration-200">Privacidad</a>
+            <a href="#" class="font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase text-zinc-500 hover:text-[#960317] hover:translate-y-[-2px] transition-transform duration-200">Términos</a>
+            <a href="#" class="font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase text-zinc-500 hover:text-[#960317] hover:translate-y-[-2px] transition-transform duration-200">Contacto</a>
+            <a href="#" class="font-['Plus_Jakarta_Sans'] text-sm tracking-wide uppercase text-zinc-500 hover:text-[#960317] hover:translate-y-[-2px] transition-transform duration-200">Transparencia</a>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 z-[100] bg-white/60 dark:bg-zinc-950/70 backdrop-blur-xl hidden flex-col justify-center items-center opacity-0 transition-opacity duration-300 w-full h-full">
+        <button class="mobile-menu-close absolute top-6 right-8 p-2 text-zinc-800 dark:text-white hover:text-[#960317] transition-colors z-[110]">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+        <div class="flex flex-col items-center justify-center gap-8 font-['Sora'] text-3xl font-bold tracking-tight w-full pointer-events-auto">
+            <a class="text-zinc-800 dark:text-zinc-200 hover:text-[#960317] dark:hover:text-[#b9252b] transition-colors" href="index.html">Misión</a>
+            <a class="text-zinc-800 dark:text-zinc-200 hover:text-[#960317] dark:hover:text-[#b9252b] transition-colors" href="bien-comun-2026.html">Eje Formativo</a>
+            <a class="text-[#960317] border-b-2 border-[#960317] pb-1 transition-all" href="promesas.html">Promesas</a>
+            <a class="text-zinc-800 dark:text-zinc-200 hover:text-[#960317] dark:hover:text-[#b9252b] transition-colors" href="foro.html">Foro</a>
+            
+            <div class="flex flex-col items-center gap-4 mt-8 w-11/12 max-w-sm">
+                <button class="w-full py-4 rounded-xl text-zinc-600 dark:text-zinc-400 font-semibold border border-zinc-200 dark:border-zinc-800 active:scale-95 transition-transform text-xl bg-white/50 backdrop-blur-md">Login</button>
+                <button class="w-full py-4 bg-gradient-to-br from-[#960317] to-[#b9252b] text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform text-xl">Unirse</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/main.js"></script>
+</body>
+</html>
