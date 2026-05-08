@@ -344,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
     injectAuthModal();
     
     // --- Global Helper Assignments (Must be before loadPosts) ---
+    window.openAuth = openAuth;
     window.getYouTubeEmbedUrl = (url) => {
         if (!url) return null;
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -605,6 +606,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            // Fetch current user and role for moderation
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            let canModerate = false;
+            if (user) {
+                const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+                canModerate = profile?.role === 'admin' || profile?.role === 'redactor';
+            }
+
             // 2. Fetch profiles for all unique author_ids
             const authorIds = [...new Set(comments.map(c => c.author_id).filter(Boolean))];
             let profilesMap = {};
@@ -624,12 +633,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     : 'Miliciano';
                 const initial = authorName.charAt(0).toUpperCase() || 'M';
                 const timeAgo = formatTimeAgo(new Date(c.created_at));
+                const canDelete = user && (user.id === c.author_id || canModerate);
+
                 return `<div style="display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f4f4f5;">
                     <div style="width:32px;height:32px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#960317;flex-shrink:0;">${initial}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
-                            <span style="font-size:11px;font-weight:700;color:#18181b;">${authorName}</span>
-                            <span style="font-size:10px;color:#a1a1aa;">${timeAgo}</span>
+                        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px;">
+                            <div style="display:flex;align-items:baseline;gap:8px;">
+                                <span style="font-size:11px;font-weight:700;color:#18181b;">${authorName}</span>
+                                <span style="font-size:10px;color:#a1a1aa;">${timeAgo}</span>
+                            </div>
+                            ${canDelete ? `<button onclick="window.deleteComment('${c.id}', '${postId}')" style="padding:4px;background:none;border:none;cursor:pointer;color:#d4d4d8;border-radius:4px;" onmouseover="this.style.color='#ef4444';" onmouseout="this.style.color='#d4d4d8';"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>` : ''}
                         </div>
                         <p style="margin:0;font-size:13px;color:#3f3f46;line-height:1.5;word-break:break-word;">${c.content}</p>
                     </div>
@@ -692,6 +706,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             showToast('Publicación eliminada.', 'success');
             loadPosts();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    };
+
+    // ─── DELETE COMMENT ──────────────────────────────────────────────────────
+    window.deleteComment = async (commentId, postId) => {
+        if (!confirm('¿Eliminar este comentario?')) return;
+        try {
+            const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
+            if (error) throw error;
+            showToast('Comentario eliminado.', 'success');
+            window.loadComments(postId);
         } catch (err) {
             showToast(err.message, 'error');
         }
@@ -1235,10 +1262,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const { data: { user } } = await supabaseClient.auth.getUser();
-            let isAdmin = false;
+            let canModerate = false;
             if (user) {
                 const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
-                isAdmin = profile?.role === 'admin';
+                canModerate = profile?.role === 'admin' || profile?.role === 'redactor';
             }
 
             postsFeed.innerHTML = data.map(post => {
@@ -1246,7 +1273,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const date = new Date(post.created_at);
                 const timeAgo = formatTimeAgo(date);
                 const category = (post.category || 'MILICIANOS').toLowerCase();
-                const canDelete = user && (user.id === post.author_id || isAdmin);
+                const canDelete = user && (user.id === post.author_id || canModerate);
 
                 let youtubeHtml = '';
                 if (post.youtube_url) {
