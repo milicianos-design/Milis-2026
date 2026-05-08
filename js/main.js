@@ -643,7 +643,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span style="font-size:11px;font-weight:700;color:#18181b;">${authorName}</span>
                                 <span style="font-size:10px;color:#a1a1aa;">${timeAgo}</span>
                             </div>
-                            ${canDelete ? `<button onclick="window.deleteComment('${c.id}', '${postId}')" style="padding:4px;background:none;border:none;cursor:pointer;color:#d4d4d8;border-radius:4px;" onmouseover="this.style.color='#ef4444';" onmouseout="this.style.color='#d4d4d8';"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>` : ''}
+                            ${canDelete ? `<button onclick="window.deleteComment('${c.id}', '${postId}')" style="padding:4px;background:none;border:none;cursor:pointer;color:#ef4444;border-radius:4px;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1';" onmouseout="this.style.opacity='0.7';"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>` : ''}
                         </div>
                         <p style="margin:0;font-size:13px;color:#3f3f46;line-height:1.5;word-break:break-word;">${c.content}</p>
                     </div>
