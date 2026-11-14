@@ -1,19 +1,8 @@
 import { escapeHtml, jsArg, safeUrl, sanitizeHtml } from './security.js';
+import * as api from './api.js';
 
 // Portada de las notas que no tienen imagen propia (Vite la copia al build).
 const DEFAULT_NOTE_COVER = new URL('../assets/images/nota-portada.webp', import.meta.url).href;
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL; // Vercel inyectará esto en producción
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY; // Vercel inyectará esto en producción
-
-let supabaseClient = null;
-if (typeof supabase !== 'undefined') {
-    if (SUPABASE_URL && SUPABASE_KEY) {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } else {
-        console.error("⚠️ [Milicianos] Error crítico: Las credenciales de Supabase están vacías. Configura SUPABASE_URL y SUPABASE_KEY para que la plataforma funcione.");
-    }
-}
 
 // --- Toast notification System ---
 const injectToastStyles = () => {
@@ -78,7 +67,9 @@ const injectToastStyles = () => {
     document.head.appendChild(style);
 };
 
-const showToast = (message, type = 'info') => {
+const showToast = (message, requestedType = 'info') => {
+    // Solo tres tipos posibles: así el ícono, el título y las clases salen siempre de valores fijos.
+    const type = ['success', 'error', 'info'].includes(requestedType) ? requestedType : 'info';
     let container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -101,15 +92,27 @@ const showToast = (message, type = 'info') => {
         info: 'Comunicación'
     };
 
+    const titleColors = {
+        success: 'text-green-500',
+        error: 'text-[#960317]',
+        info: 'text-blue-500'
+    };
+
+    // Estructura fija; los textos se cargan con textContent, que nunca interpreta HTML.
     toast.innerHTML = `
         <div class="toast-icon">
-            <span class="material-symbols-outlined">${icons[type]}</span>
+            <span class="material-symbols-outlined"></span>
         </div>
         <div class="toast-content">
-            <div class="toast-title text-${type === 'error' ? '[#960317]' : (type === 'success' ? 'green-500' : 'blue-500')}">${titles[type]}</div>
-            <div class="toast-message">${escapeHtml(message)}</div>
+            <div class="toast-title"></div>
+            <div class="toast-message"></div>
         </div>
     `;
+    toast.querySelector('.material-symbols-outlined').textContent = icons[type];
+    const toastTitle = toast.querySelector('.toast-title');
+    toastTitle.classList.add(titleColors[type]);
+    toastTitle.textContent = titles[type];
+    toast.querySelector('.toast-message').textContent = String(message ?? '');
 
     container.appendChild(toast);
 
@@ -243,12 +246,18 @@ function setupAuthModalEvents() {
             authSubmit.innerText = "Actualizar Contraseña";
             switchText.innerHTML = "";
         }
-        
+
+        // Para elegir una clave nueva no hace falta el email: el enlace ya identifica la cuenta.
+        const emailInput = document.getElementById('auth-email');
+        emailInput.required = mode !== 'update_password';
+        emailInput.closest('.space-y-2').classList.toggle('hidden', mode === 'update_password');
+
         // Re-attach switch btn event if destroyed by innerHTML
         const newSwitchBtn = document.getElementById('auth-switch-btn');
         if (newSwitchBtn) newSwitchBtn.addEventListener('click', () => toggleMode());
     };
 
+    setAuthMode = toggleMode;
     switchBtn.addEventListener('click', () => toggleMode());
     document.getElementById('forgot-pass-btn').addEventListener('click', () => toggleMode('forgot'));
 
@@ -265,48 +274,39 @@ function setupAuthModalEvents() {
         authSubmit.disabled = true;
         authSubmit.innerText = "Procesando...";
 
+        const closeModal = () => {
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
         try {
             if (mode === 'signup') {
-                const firstName = document.getElementById('first-name').value;
-                const lastName = document.getElementById('last-name').value;
-                const { error } = await supabaseClient.auth.signUp({
+                const { message } = await api.auth.register({
                     email,
                     password,
-                    options: {
-                        data: { first_name: firstName, last_name: lastName }
-                    }
+                    first_name: document.getElementById('first-name').value,
+                    last_name: document.getElementById('last-name').value,
                 });
-                if (error) throw error;
-                showToast("Registro exitoso. Revisa tu email para confirmar.", "success");
-                modal.classList.add('opacity-0');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                showToast(message, "success");
+                closeModal();
             } else if (mode === 'forgot') {
-                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + window.location.pathname,
-                });
-                if (error) throw error;
-                showToast("Email de recuperación enviado.", "success");
+                const { message } = await api.auth.forgotPassword(email);
+                showToast(message, "success");
                 toggleMode('login');
             } else if (mode === 'update_password') {
-                const { error } = await supabaseClient.auth.updateUser({ password });
-                if (error) throw error;
-                showToast("Contraseña actualizada con éxito.", "success");
-                modal.classList.add('opacity-0');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                const { message } = await api.auth.resetPassword(passwordResetToken, password);
+                passwordResetToken = null;
+                showToast(message, "success");
+                toggleMode('login');
+                closeModal();
             } else {
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) throw error;
+                await api.auth.login(email, password);
                 showToast("Conexión establecida correctamente.", "success");
-                modal.classList.add('opacity-0');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                closeModal();
             }
         } catch (err) {
-            let msg = err.message || "Ocurrió un error inesperado.";
-            if (err.status === 429) msg = "Demasiados intentos. Por favor, espera unos minutos e intenta nuevamente.";
-            else if (msg.includes('User already registered')) msg = "Este correo electrónico ya se encuentra registrado.";
-            else if (msg.includes('Password should be')) msg = "La contraseña debe tener al menos 6 caracteres.";
-            else if (msg.includes('Invalid login credentials')) msg = "Credenciales incorrectas. Verifica tu email y contraseña.";
-            showToast(msg, "error");
+            // El servidor ya manda el mensaje en español, listo para mostrar.
+            showToast(err.message || "Ocurrió un error inesperado.", "error");
         } finally {
             authSubmit.disabled = false;
             if (mode === 'signup') authSubmit.innerText = "Registrarse";
@@ -316,32 +316,47 @@ function setupAuthModalEvents() {
         }
     });
 
-    // Handle Password Recovery Event
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (event === "PASSWORD_RECOVERY") {
-            openAuth('update_password');
-            const emailInput = document.getElementById('auth-email');
-            if (emailInput) {
-                emailInput.value = session.user.email;
-                emailInput.disabled = true;
-            }
-            toggleMode('update_password');
-        }
-    });
 }
+
+// Lo asigna setupAuthModalEvents: cambia el modal entre login, registro, recuperar y nueva clave.
+let setAuthMode = () => {};
+// Token del enlace "?nueva-clave=..." del email de recuperación.
+let passwordResetToken = null;
 
 function openAuth(mode = 'login') {
     const modal = document.getElementById('auth-modal');
     if (!modal) return;
 
+    setAuthMode(mode);
     modal.classList.remove('hidden');
     setTimeout(() => modal.classList.remove('opacity-0'), 10);
-    
-    // We need a way to trigger the internal toggleMode from outside if needed, 
-    // but for now the simple logic in setupAuthModalEvents handles the initial state.
-    // To support starting in a specific mode:
-    if (mode === 'update_password') {
-        // This is handled by the event listener above usually
+}
+
+/**
+ * Enlaces que llegan por email: "?confirmar=TOKEN" (activar la cuenta) y "?nueva-clave=TOKEN"
+ * (elegir otra contraseña). Se sacan de la barra de direcciones para que no queden en el historial.
+ */
+async function handleEmailLinks() {
+    const params = new URLSearchParams(window.location.search);
+    const verifyToken = params.get('confirmar');
+    const resetToken = params.get('nueva-clave');
+    if (!verifyToken && !resetToken) return;
+
+    params.delete('confirmar');
+    params.delete('nueva-clave');
+    const query = params.toString();
+    history.replaceState(null, '', window.location.pathname + (query ? `?${query}` : '') + window.location.hash);
+
+    if (verifyToken) {
+        try {
+            const { message } = await api.auth.verifyEmail(verifyToken);
+            showToast(message, 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    } else {
+        passwordResetToken = resetToken;
+        openAuth('update_password');
     }
 }
 
@@ -356,31 +371,27 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ─── POLL RENDERING (inline styles for guaranteed visibility) ───────────
-    window.getPollHtml = (post, user) => {
+    // post.poll viene del servidor: { question, options: [{ id, text, votes }], total_votes, my_vote, show_results }.
+    // Los votos de cada opción llegan recién cuando el usuario votó o pidió ver los resultados.
+    window.getPollHtml = (post) => {
         try {
-            let pollData = post.poll_data;
-            if (typeof pollData === 'string') {
-                try { pollData = JSON.parse(pollData); } catch(e) { return ''; }
-            }
-            if (!pollData || !pollData.options || !Array.isArray(pollData.options)) return '';
+            const poll = post.poll;
+            if (!poll || !Array.isArray(poll.options)) return '';
 
-            const voters = Array.isArray(pollData.voters) ? pollData.voters : [];
-            const hasVoted = user && voters.includes(user.id);
-            const totalVotes = voters.length;
-            const resultsTo = Array.isArray(pollData.show_results_to) ? pollData.show_results_to : [];
-            const showResults = hasVoted || (user && resultsTo.includes(user.id));
+            const totalVotes = Number(poll.total_votes) || 0;
+            const showResults = Boolean(poll.show_results);
 
             let html = `<div id="poll-container-${escapeHtml(post.id)}" style="margin:16px 0;background:#f4f4f5;border-radius:16px;padding:20px;border:1px solid #e4e4e7;">
                 <p style="margin:0 0 14px;font-size:13px;font-weight:800;color:#18181b;display:flex;align-items:center;gap:8px;">
                     <span class="material-symbols-outlined" style="font-size:18px;color:#960317;">poll</span>
-                    ${escapeHtml(pollData.question || 'Encuesta')}
+                    ${escapeHtml(poll.question || 'Encuesta')}
                 </p>
                 <div style="display:flex;flex-direction:column;gap:10px;">`;
 
-            pollData.options.forEach((opt, index) => {
+            poll.options.forEach((opt) => {
                 // Se interpola sin comillas en onclick: solo se acepta un entero.
-                const optId = Number.isInteger(opt.id) ? opt.id : index;
-                const optVotes = Array.isArray(opt.votes) ? opt.votes.length : 0;
+                const optId = Number.isInteger(opt.id) ? opt.id : 0;
+                const optVotes = Number(opt.votes) || 0;
                 const percent = totalVotes > 0 ? Math.round((optVotes / totalVotes) * 100) : 0;
 
                 if (showResults) {
@@ -418,77 +429,34 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Reemplaza una encuesta ya dibujada por su versión actualizada y anima las barras.
+    function replacePoll(postId, poll) {
+        const container = document.getElementById(`poll-container-${postId}`);
+        if (!container) return;
+        container.outerHTML = window.getPollHtml({ id: postId, poll });
+        setTimeout(() => {
+            document.getElementById(`poll-container-${postId}`)?.querySelectorAll('.poll-bar').forEach(bar => {
+                bar.style.width = bar.getAttribute('data-percent') + '%';
+            });
+        }, 50);
+    }
+
     // ─── VOTE ON POLL ────────────────────────────────────────────────────────
     window.votePoll = async (postId, optionId) => {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) { showToast('Ingresa para votar en la encuesta.', 'info'); return; }
-
+        if (!api.auth.user()) { showToast('Ingresa para votar en la encuesta.', 'info'); return; }
         try {
-            const { data: post, error: fetchErr } = await supabaseClient.from('posts').select('poll_data').eq('id', postId).single();
-            if (fetchErr) throw fetchErr;
-
-            let pollData = post.poll_data;
-            if (typeof pollData === 'string') pollData = JSON.parse(pollData);
-            if (!pollData) throw new Error('Datos de encuesta no encontrados.');
-
-            pollData.voters = pollData.voters || [];
-            if (pollData.voters.includes(user.id)) {
-                showToast('Ya participaste en esta encuesta.', 'info');
-                return;
-            }
-
-            const opt = pollData.options.find(o => (o.id !== undefined ? o.id : pollData.options.indexOf(o)) === optionId);
-            if (!opt) throw new Error('Opción no encontrada.');
-
-            opt.votes = opt.votes || [];
-            opt.votes.push(user.id);
-            pollData.voters.push(user.id);
-
-            const { error: updateErr } = await supabaseClient.from('posts').update({ poll_data: pollData }).eq('id', postId);
-            if (updateErr) throw updateErr;
-
-            const container = document.getElementById(`poll-container-${postId}`);
-            if (container) {
-                container.outerHTML = window.getPollHtml({ id: postId, poll_data: pollData }, user);
-                setTimeout(() => {
-                    document.querySelectorAll(`#poll-container-${postId} .poll-bar`).forEach(bar => {
-                        bar.style.width = bar.getAttribute('data-percent') + '%';
-                    });
-                }, 50);
-            }
+            replacePoll(postId, await api.posts.vote(postId, optionId));
             showToast('¡Voto registrado!', 'success');
         } catch (err) {
-            showToast(err.message, 'error');
+            showToast(err.message, err.status === 409 ? 'info' : 'error');
         }
     };
 
     // ─── VIEW POLL RESULTS WITHOUT VOTING ────────────────────────────────────
     window.viewPollResults = async (postId) => {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) { showToast('Ingresa para ver resultados.', 'info'); return; }
-
+        if (!api.auth.user()) { showToast('Ingresa para ver resultados.', 'info'); return; }
         try {
-            const { data: post, error } = await supabaseClient.from('posts').select('poll_data').eq('id', postId).single();
-            if (error) throw error;
-
-            let pollData = post.poll_data;
-            if (typeof pollData === 'string') pollData = JSON.parse(pollData);
-
-            pollData.show_results_to = pollData.show_results_to || [];
-            if (!pollData.show_results_to.includes(user.id)) {
-                pollData.show_results_to.push(user.id);
-                await supabaseClient.from('posts').update({ poll_data: pollData }).eq('id', postId);
-            }
-
-            const container = document.getElementById(`poll-container-${postId}`);
-            if (container) {
-                container.outerHTML = window.getPollHtml({ id: postId, poll_data: pollData }, user);
-                setTimeout(() => {
-                    document.querySelectorAll(`#poll-container-${postId} .poll-bar`).forEach(bar => {
-                        bar.style.width = bar.getAttribute('data-percent') + '%';
-                    });
-                }, 50);
-            }
+            replacePoll(postId, await api.posts.revealResults(postId));
         } catch (err) {
             showToast(err.message, 'error');
         }
@@ -496,8 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ─── UPVOTE POST (1 like per user, toggle) ───────────────────────────────
     window.upvotePost = async (postId) => {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) { showToast('Ingresa para dar like.', 'info'); return; }
+        if (!api.auth.user()) { showToast('Ingresa para dar like.', 'info'); return; }
 
         const btn = document.getElementById(`like-btn-${postId}`);
         const counter = document.getElementById(`vote-count-${postId}`);
@@ -506,60 +473,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) btn.style.pointerEvents = 'none';
 
         try {
-            // 1. Check if already liked
-            const { data: existing, error: checkErr } = await supabaseClient
-                .from('post_likes')
-                .select('user_id')
-                .eq('post_id', postId)
-                .eq('user_id', user.id)
-                .maybeSingle();
-
-            if (checkErr) throw checkErr;
-
-            // 2. Get current count
-            const { data: postRow, error: postErr } = await supabaseClient
-                .from('posts')
-                .select('vote_count')
-                .eq('id', postId)
-                .single();
-            if (postErr) throw postErr;
-
-            const currentCount = postRow.vote_count || 0;
-
-            if (existing) {
-                // → Unlike: delete from post_likes + decrement
-                const { error: delErr } = await supabaseClient
-                    .from('post_likes')
-                    .delete()
-                    .eq('post_id', postId)
-                    .eq('user_id', user.id);
-                if (delErr) throw delErr;
-
-                const newCount = Math.max(0, currentCount - 1);
-                await supabaseClient.from('posts').update({ vote_count: newCount }).eq('id', postId);
-
-                if (counter) counter.textContent = newCount;
-                if (btn) { btn.style.color = '#71717a'; btn.title = 'Me gusta'; }
-            } else {
-                // → Like: insert into post_likes + increment
-                const { error: insErr } = await supabaseClient
-                    .from('post_likes')
-                    .insert({ post_id: postId, user_id: user.id });
-
-                // If unique constraint fires (race condition), just ignore
-                if (insErr && insErr.code === '23505') {
-                    showToast('Ya diste like a este post.', 'info');
-                    if (btn) { btn.style.color = '#960317'; btn.title = 'Quitar like'; }
-                    return;
-                }
-                if (insErr) throw insErr;
-
-                const newCount = currentCount + 1;
-                await supabaseClient.from('posts').update({ vote_count: newCount }).eq('id', postId);
-
-                if (counter) counter.textContent = newCount;
-                if (btn) { btn.style.color = '#960317'; btn.title = 'Quitar like'; }
-                // showToast('¡Me gusta!', 'success');
+            const { liked, vote_count: voteCount } = await api.posts.toggleLike(postId);
+            if (counter) counter.textContent = voteCount;
+            if (btn) {
+                btn.style.color = liked ? '#960317' : '#71717a';
+                btn.title = liked ? 'Quitar like' : 'Me gusta';
             }
         } catch (err) {
             console.error('upvotePost error:', err);
@@ -591,14 +509,8 @@ document.addEventListener("DOMContentLoaded", () => {
         list.innerHTML = '<p style="font-size:11px;color:#a1a1aa;text-align:center;padding:12px 0;">Cargando...</p>';
 
         try {
-            // 1. Fetch comments
-            const { data: comments, error } = await supabaseClient
-                .from('comments')
-                .select('id, content, created_at, author_id')
-                .eq('post_id', postId)
-                .order('created_at', { ascending: true });
-
-            if (error) throw error;
+            // El servidor ya trae el autor de cada comentario y si quien mira lo puede borrar.
+            const comments = await api.comments.list(postId);
 
             if (counter) counter.textContent = comments.length;
 
@@ -607,34 +519,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Fetch current user and role for moderation
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            let canModerate = false;
-            if (user) {
-                const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
-                canModerate = profile?.role === 'admin' || profile?.role === 'redactor';
-            }
-
-            // 2. Fetch profiles for all unique author_ids
-            const authorIds = [...new Set(comments.map(c => c.author_id).filter(Boolean))];
-            let profilesMap = {};
-            if (authorIds.length > 0) {
-                const { data: profiles } = await supabaseClient
-                    .from('profiles')
-                    .select('id, first_name, last_name')
-                    .in('id', authorIds);
-                if (profiles) profiles.forEach(p => { profilesMap[p.id] = p; });
-            }
-
-            // 3. Render
             list.innerHTML = comments.map(c => {
-                const profile = profilesMap[c.author_id];
-                const authorName = profile
-                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Miliciano'
-                    : 'Miliciano';
+                const authorName = `${c.author?.first_name || ''} ${c.author?.last_name || ''}`.trim() || 'Miliciano';
                 const initial = authorName.charAt(0).toUpperCase() || 'M';
                 const timeAgo = formatTimeAgo(new Date(c.created_at));
-                const canDelete = user && (user.id === c.author_id || canModerate);
+                const canDelete = Boolean(c.can_delete);
 
                 return `<div style="display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f4f4f5;">
                     <div style="width:32px;height:32px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#960317;flex-shrink:0;">${escapeHtml(initial)}</div>
@@ -659,12 +548,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ─── POST COMMENT ────────────────────────────────────────────────────────
     window.postComment = async (postId) => {
-        console.log('[postComment] called for', postId);
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) { showToast('Ingresa para comentar.', 'info'); return; }
+        if (!api.auth.user()) { showToast('Ingresa para comentar.', 'info'); return; }
 
         const input = document.getElementById(`comment-input-${postId}`);
-        if (!input) { console.error('[postComment] input not found for', postId); return; }
+        if (!input) return;
 
         const content = input.value.trim();
         if (!content) { showToast('Escribe algo antes de comentar.', 'info'); return; }
@@ -673,17 +560,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
 
         try {
-            console.log('[postComment] inserting comment...');
-            const { error } = await supabaseClient.from('comments').insert({
-                post_id: postId,
-                author_id: user.id,
-                content
-            });
-            if (error) throw error;
-
-            console.log('[postComment] success, reloading comments');
+            await api.comments.create(postId, content);
             input.value = '';
-            // showToast('Comentario publicado.', 'success');
             await window.loadComments(postId);
         } catch (err) {
             console.error('[postComment] error:', err);
@@ -694,17 +572,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ─── DELETE POST ─────────────────────────────────────────────────────────
-    window.deletePost = async (postId, imageUrl) => {
+    // La imagen del post la borra el servidor junto con el post.
+    window.deletePost = async (postId) => {
         if (!confirm('¿Eliminar esta publicación?')) return;
         try {
-            const { error } = await supabaseClient.from('posts').delete().eq('id', postId);
-            if (error) throw error;
-            if (imageUrl) {
-                try {
-                    const path = imageUrl.split('/').pop();
-                    await supabaseClient.storage.from('milicianos-media').remove([`posts/${path}`]);
-                } catch (e) { console.warn('Could not delete image from storage', e); }
-            }
+            await api.posts.remove(postId);
             showToast('Publicación eliminada.', 'success');
             loadPosts();
         } catch (err) {
@@ -716,8 +588,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.deleteComment = async (commentId, postId) => {
         if (!confirm('¿Eliminar este comentario?')) return;
         try {
-            const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
-            if (error) throw error;
+            await api.comments.remove(commentId);
             showToast('Comentario eliminado.', 'success');
             window.loadComments(postId);
         } catch (err) {
@@ -726,13 +597,21 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Monitor Auth State
-    if (supabaseClient) {
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            updateAuthUI(session);
+    // Se le pregunta una vez al servidor quién está logueado; después, cada login o logout
+    // (y una sesión vencida) actualiza la barra de navegación y vuelve a cargar el foro,
+    // porque los likes y los botones de borrar dependen de quién mira.
+    let authReady = false;
+    api.auth.onChange((user) => {
+        updateAuthUI(user);
+        if (authReady && postsFeed) loadPosts();
+    });
+    api.auth.refresh()
+        .catch(() => null)
+        .then((user) => {
+            updateAuthUI(user ?? null);
+            authReady = true;
         });
-        // Initial check
-        supabaseClient.auth.getSession().then(({ data }) => updateAuthUI(data.session));
-    }
+    handleEmailLinks();
 
     const navbar = document.querySelector("nav");
 
@@ -757,15 +636,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Mock click events for Demo (only on other buttons)
 
 
-    function updateAuthUI(session) {
+    async function logout() {
+        try {
+            await api.auth.logout(); // avisa a onChange, que actualiza la barra y el foro
+            showToast('Sesión cerrada.', 'info');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    function updateAuthUI(user) {
         const authContainers = document.querySelectorAll('.flex.items-center.gap-4 .hidden.md\\:flex');
         const createPostContainer = document.getElementById('create-post-container');
         // Mobile menu auth section
         const mobileAuthSection = document.getElementById('mobile-menu-auth');
 
-        if (session) {
-            const user = session.user;
-            const name = escapeHtml(user.user_metadata.first_name || user.email.split('@')[0]);
+        if (user) {
+            const name = escapeHtml(user.first_name || user.email.split('@')[0]);
             authContainers.forEach(container => {
                 container.innerHTML = `
                     <div class="flex items-center gap-4">
@@ -778,7 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </button>
                     </div>
                 `;
-                document.getElementById('logout-btn')?.addEventListener('click', () => supabaseClient.auth.signOut());
+                document.getElementById('logout-btn')?.addEventListener('click', logout);
             });
 
             // Mobile menu: show user info + logout
@@ -794,21 +681,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         </button>
                     </div>
                 `;
-                document.getElementById('mobile-logout-btn')?.addEventListener('click', () => supabaseClient.auth.signOut());
+                document.getElementById('mobile-logout-btn')?.addEventListener('click', logout);
             }
 
             // Show post creation for logged in users
             if (createPostContainer) createPostContainer.classList.remove('hidden');
 
-            // Check role for Note creation
+            // Las notas de Vanguardia solo las escriben redactores y admins.
             const createNoteBtn = document.getElementById('create-note-btn');
-            if (createNoteBtn) {
-                supabaseClient.from('profiles').select('role').eq('id', user.id).single().then(({ data }) => {
-                    if (data && (data.role === 'admin' || data.role === 'redactor')) {
-                        createNoteBtn.classList.remove('hidden');
-                    }
-                });
-            }
+            if (createNoteBtn) createNoteBtn.classList.toggle('hidden', !api.auth.isModerator());
         } else {
             authContainers.forEach(container => {
                 container.innerHTML = `
@@ -1199,23 +1080,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    async function uploadFile(file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-        const filePath = `posts/${fileName}`;
-
-        const { data, error } = await supabaseClient.storage
-            .from('milicianos-media')
-            .upload(filePath, file);
-
-        if (error) throw error;
-
-        const { data: { publicUrl } } = supabaseClient.storage
-            .from('milicianos-media')
-            .getPublicUrl(filePath);
-
-        return publicUrl;
-    }
+    // El servidor valida la imagen, la achica y la guarda como WebP; devuelve su URL.
+    const uploadFile = (file) => api.uploadImage(file, 'post');
 
     function formatTimeAgo(date) {
         if (!date || isNaN(date.getTime())) return 'fecha desconocida';
@@ -1239,18 +1105,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        console.log("loadPosts starting...");
         try {
-            const { data, error } = await supabaseClient
-                .from('posts')
-                .select(`
-                    *,
-                    profiles:author_id (first_name, last_name)
-                `)
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            console.log(`loadPosts: successfully fetched ${data.length} posts`);
+            // Cada post ya trae autor, likes, cantidad de comentarios, encuesta y permisos.
+            const data = await api.posts.list();
 
             if (data.length === 0) {
                 postsFeed.innerHTML = `
@@ -1262,21 +1119,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            let canModerate = false;
-            if (user) {
-                const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
-                canModerate = profile?.role === 'admin' || profile?.role === 'redactor';
-            }
-
             postsFeed.innerHTML = data.map(post => {
                 const id = escapeHtml(post.id);
                 const idArg = jsArg(post.id);
-                const authorName = post.profiles ? `@${post.profiles.first_name}_${post.profiles.last_name}`.toLowerCase() : '@sin_nombre';
+                const authorName = post.author ? `@${post.author.first_name}_${post.author.last_name}`.toLowerCase() : '@sin_nombre';
                 const date = new Date(post.created_at);
                 const timeAgo = formatTimeAgo(date);
                 const category = (post.category || 'MILICIANOS').toLowerCase();
-                const canDelete = user && (user.id === post.author_id || canModerate);
+                const canDelete = Boolean(post.can_delete);
 
                 let youtubeHtml = '';
                 if (post.youtube_url) {
@@ -1290,12 +1140,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
 
-                let pollHtml = '';
-                if (post.poll_data) {
-                    pollHtml = getPollHtml(post, user);
-                }
+                const pollHtml = post.poll ? getPollHtml(post) : '';
 
                 const voteCount = Number(post.vote_count) || 0;
+                const commentCount = Number(post.comment_count) || 0;
+                const liked = Boolean(post.liked_by_me);
                 const imageUrl = safeUrl(post.image_url);
 
                 return `
@@ -1306,7 +1155,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <span style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#960317;background:#fff1f0;padding:3px 10px;border-radius:20px;border:1px solid #fecaca;text-transform:uppercase;">m/${escapeHtml(category)}</span>
                             <span style="font-size:11px;color:#a1a1aa;font-weight:600;">${escapeHtml(authorName)} · ${timeAgo}</span>
                         </div>
-                        ${canDelete ? `<button onclick="deletePost(${idArg}, ${jsArg(post.image_url || '')})" title="Eliminar" style="padding:6px;background:none;border:none;cursor:pointer;color:#d4d4d8;border-radius:8px;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#ef4444';this.style.background='#fef2f2';" onmouseout="this.style.color='#d4d4d8';this.style.background='none';"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>` : ''}
+                        ${canDelete ? `<button onclick="deletePost(${idArg})" title="Eliminar" style="padding:6px;background:none;border:none;cursor:pointer;color:#d4d4d8;border-radius:8px;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#ef4444';this.style.background='#fef2f2';" onmouseout="this.style.color='#d4d4d8';this.style.background='none';"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>` : ''}
                     </div>
 
                     <!-- Body -->
@@ -1321,7 +1170,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <!-- Footer Actions -->
                     <div style="padding:12px 24px 16px;border-top:1px solid #f4f4f5;display:flex;align-items:center;gap:16px;">
                         <!-- Upvote (toggle, 1 per user) -->
-                        <button type="button" id="like-btn-${id}" onclick="event.preventDefault();window.upvotePost(${idArg});" title="Me gusta" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;color:#71717a;" onmouseover="this.style.background='#fff1f0';" onmouseout="this.style.background='none';">
+                        <button type="button" id="like-btn-${id}" onclick="event.preventDefault();window.upvotePost(${idArg});" title="${liked ? 'Quitar like' : 'Me gusta'}" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;color:${liked ? '#960317' : '#71717a'};" onmouseover="this.style.background='#fff1f0';" onmouseout="this.style.background='none';">
                             <span class="material-symbols-outlined" style="font-size:18px;color:inherit;">favorite</span>
                             <span id="vote-count-${id}" style="font-size:12px;font-weight:700;">${voteCount}</span>
                         </button>
@@ -1330,7 +1179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <button type="button" onclick="window.toggleComments(${idArg})" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;" onmouseover="this.style.background='#f4f4f5';" onmouseout="this.style.background='none';">
                             <span class="material-symbols-outlined" style="font-size:18px;color:#71717a;">chat_bubble</span>
                             <span style="font-size:12px;font-weight:600;color:#71717a;">Comentar</span>
-                            <span id="comment-count-${id}" style="font-size:11px;font-weight:700;color:#fff;background:#71717a;padding:1px 7px;border-radius:20px;">0</span>
+                            <span id="comment-count-${id}" style="font-size:11px;font-weight:700;color:#fff;background:#71717a;padding:1px 7px;border-radius:20px;">${commentCount}</span>
                         </button>
                     </div>
 
@@ -1357,35 +1206,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     bar.style.width = (bar.getAttribute('data-percent') || 0) + '%';
                 });
             }, 100);
-
-            // Load comment counts for all visible posts
-            data.forEach(post => {
-                // Load comment counts
-                supabaseClient
-                    .from('comments')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('post_id', post.id)
-                    .then(({ count }) => {
-                        const el = document.getElementById(`comment-count-${post.id}`);
-                        if (el && count > 0) el.textContent = count;
-                    });
-
-                // Mark liked posts for current user
-                if (user) {
-                    supabaseClient
-                        .from('post_likes')
-                        .select('user_id')
-                        .eq('post_id', post.id)
-                        .eq('user_id', user.id)
-                        .maybeSingle()
-                        .then(({ data: like }) => {
-                            if (like) {
-                                const btn = document.getElementById(`like-btn-${post.id}`);
-                                if (btn) { btn.style.color = '#960317'; btn.title = 'Quitar like'; }
-                            }
-                        });
-                }
-            });
 
         } catch (err) {
             console.error('Error loading posts:', err);
@@ -1436,13 +1256,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const originalBtnText = submitBtn.innerText;
 
             try {
-                console.log("Iniciando publicación de post...");
-                if (!supabaseClient) {
-                    throw new Error("El motor de base de datos no está inicializado.");
-                }
-
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) {
+                if (!api.auth.user()) {
                     showToast("Debes ingresar para participar.", "info");
                     return;
                 }
@@ -1462,7 +1276,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 let imageUrl = null;
                 const file = imageInput?.files[0];
                 if (file) {
-                    console.log("Subiendo imagen...");
                     imageUrl = await uploadFile(file);
                 }
 
@@ -1471,36 +1284,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     youtubeUrl = ytInput.value.trim() || null;
                 }
 
-                let pollData = null;
+                let poll = null;
                 if (pollContainer && !pollContainer.classList.contains('hidden')) {
                     const question = document.getElementById('poll-question').value.trim();
                     const options = Array.from(pollOptsContainer.querySelectorAll('.poll-option-input'))
                         .map(inp => inp.value.trim())
                         .filter(val => val !== '');
                     if (question && options.length >= 2) {
-                        pollData = {
-                            question: question,
-                            options: options.map((opt, i) => ({ id: i, text: opt, votes: [] })),
-                            voters: [],
-                            show_results_to: []
-                        };
+                        poll = { question, options };
                     }
                 }
 
-                console.log("Insertando en Supabase...");
-                const { error } = await supabaseClient.from('posts').insert({
-                    author_id: user.id,
+                await api.posts.create({
                     title,
                     content,
                     category,
                     image_url: imageUrl,
                     youtube_url: youtubeUrl,
-                    poll_data: pollData
+                    poll
                 });
 
-                if (error) throw error;
-
-                console.log("Publicación exitosa.");
                 createPostForm.reset();
                 if (forumQuill) forumQuill.setContents([]);
                 if (imagePreviewContainer) imagePreviewContainer.classList.add('hidden');
@@ -1578,41 +1381,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Helper: Image Upload
-    async function uploadNoteImage(file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `notes/${fileName}`;
-
-        const { error } = await supabaseClient.storage
-            .from('milicianos-media')
-            .upload(filePath, file);
-
-        if (error) throw error;
-
-        const { data } = supabaseClient.storage
-            .from('milicianos-media')
-            .getPublicUrl(filePath);
-
-        return data.publicUrl;
-    }
+    const uploadNoteImage = (file) => api.uploadImage(file, 'note');
 
     async function loadNotes(query = '') {
-        console.log("loadNotes() function called with query:", query);
-        if (!notesFeed) {
-            console.warn("notesFeed element not found in DOM");
-            return;
-        }
+        if (!notesFeed) return;
 
-        console.log("loadNotes starting...");
         try {
-            const { data, error } = await supabaseClient
-                .from('notes')
-                .select('id, author_id, type, title, image_url, created_at, keywords, reading_time_min, status, slug, profiles(first_name, last_name)')
-                .or('status.eq.published,status.is.null')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            allNotes = data;
+            // Solo las publicadas, sin el contenido completo (se pide al abrir cada nota).
+            allNotes = await api.notes.list();
 
             filterAndRenderNotes(query);
 
@@ -1637,8 +1413,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         notesFeed.innerHTML = '';
         filtered.forEach((note, index) => {
-            const authorName = escapeHtml(note.profiles ? `${note.profiles.first_name} ${note.profiles.last_name}` : 'Miliciano');
-            const authorInitial = escapeHtml((note.profiles?.first_name || 'M').charAt(0));
+            const authorName = escapeHtml(note.author ? `${note.author.first_name} ${note.author.last_name}` : 'Miliciano');
+            const authorInitial = escapeHtml((note.author?.first_name || 'M').charAt(0));
             const type = escapeHtml(note.type);
             const title = escapeHtml(note.title);
             // Use metadata reading time or fallback to 1 min since we don't have content here
@@ -1701,18 +1477,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 `;
             }
 
-            // Fetch full note content including content and profiles
-            const { data: note, error } = await supabaseClient
-                .from('notes')
-                .select('*, profiles(first_name, last_name, avatar_url)')
-                .eq('id', metadata.id)
-                .single();
+            // Contenido completo de la nota (el listado no lo trae).
+            const note = await api.notes.get(metadata.id);
 
-            if (error) throw error;
-            if (!note) return;
-
-            const authorName = note.profiles ? `${note.profiles.first_name} ${note.profiles.last_name}` : 'Miliciano';
-            const readTime = calculateReadingTime(note.content || '');
+            const authorName = note.author ? `${note.author.first_name} ${note.author.last_name}` : 'Miliciano';
+            const readTime = note.reading_time_min || calculateReadingTime(note.content || '');
 
             document.getElementById('reader-type').innerText = note.type;
             document.getElementById('reader-title').innerText = note.title;
@@ -1820,11 +1589,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('reader-image-container').classList.add('hidden');
             }
 
-            // Check if current user is owner to show delete button
-            const { data: { user } } = await supabaseClient.auth.getUser();
+            // El servidor indica si quien mira puede borrarla (su autor o un admin).
             const deleteBtn = document.getElementById('delete-note-btn');
             if (deleteBtn) {
-                if (user && (user.id === note.author_id)) {
+                if (note.can_delete) {
                     deleteBtn.classList.remove('hidden');
                     deleteBtn.onclick = () => deleteVanguardiaNote(note.id);
                 } else {
@@ -1841,9 +1609,10 @@ document.addEventListener("DOMContentLoaded", () => {
     window.deleteVanguardiaNote = async (id) => {
         if (!confirm("¿ESTÁS SEGURO? Esta acción eliminará permanentemente la nota de la Vanguardia.")) return;
         
-        const { error } = await supabaseClient.from('notes').delete().eq('id', id);
-        if (error) {
-            showToast("Error al eliminar la nota.", "error");
+        try {
+            await api.notes.remove(id);
+        } catch (err) {
+            showToast(err.message || "Error al eliminar la nota.", "error");
             return;
         }
         
@@ -1987,7 +1756,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error saving blocks:", e);
         }
         
-        const content = JSON.stringify(contentData);
         const keywords = document.getElementById('note-keywords').value.split(',').map(k => k.trim()).filter(k => k);
 
         if (!title && contentData.blocks && contentData.blocks.length === 0) {
@@ -1998,24 +1766,26 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
+        if (!api.auth.isModerator()) return;
 
+        // El servidor arma el slug y el tiempo de lectura, y limpia el contenido.
         const noteData = {
-            author_id: user.id,
             title: title || 'Borrador sin título',
-            type: type,
-            content: content,
+            type: type || 'MILICIANOS',
+            content: contentData,
             keywords: keywords,
-            status: 'draft',
-            slug: generateSlug(title || `draft-${Date.now()}`)
+            status: 'draft'
         };
 
-        if (currentDraftId) {
-            await supabaseClient.from('notes').update(noteData).eq('id', currentDraftId);
-        } else {
-            const { data, error } = await supabaseClient.from('notes').insert([noteData]).select('id').single();
-            if (data && data.id) currentDraftId = data.id;
+        try {
+            if (currentDraftId) {
+                await api.notes.update(currentDraftId, noteData);
+            } else {
+                currentDraftId = (await api.notes.create(noteData)).id;
+            }
+        } catch (err) {
+            console.warn('No se pudo guardar el borrador:', err.message);
+            return;
         }
 
         if (draftStatus) {
@@ -2039,16 +1809,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function loadLastDraft() {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
+        if (!api.auth.isModerator()) return;
 
-        const { data } = await supabaseClient.from('notes')
-            .select('*')
-            .eq('author_id', user.id)
-            .eq('status', 'draft')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+        let data = null;
+        try {
+            data = await api.notes.latestDraft();
+        } catch (err) {
+            console.warn('No se pudo cargar el último borrador:', err.message);
+        }
 
         if (data) {
             currentDraftId = data.id;
@@ -2089,12 +1857,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedTags = [];
 
     async function loadExistingTags() {
-        if (!supabaseClient) return;
         try {
-            const { data, error } = await supabaseClient.from('notes').select('keywords');
-            if (error) throw error;
-            const allKeywords = data.flatMap(n => n.keywords || []);
-            existingTags = [...new Set(allKeywords.map(k => k.trim().toLowerCase()).filter(k => k))];
+            const tags = await api.notes.tags();
+            existingTags = [...new Set(tags.map(k => k.trim().toLowerCase()).filter(k => k))];
         } catch (err) {
             console.warn("Failed to load tags:", err);
         }
@@ -2314,15 +2079,21 @@ document.addEventListener("DOMContentLoaded", () => {
             const dt = e.dataTransfer;
             if (dt.files && dt.files.length > 0) {
                 noteImageInput.files = dt.files;
-                document.getElementById('note-image-name').innerText = dt.files[0].name;
+                setNoteImageName(dt.files[0].name);
                 triggerAutoSave();
             }
         }, false);
     }
 
+    // El texto con el nombre de la imagen solo existe mientras el recuadro está vacío.
+    function setNoteImageName(text) {
+        const label = document.getElementById('note-image-name');
+        if (label) label.innerText = text;
+    }
+
     noteImageInput?.addEventListener('change', (e) => {
         const name = e.target.files[0]?.name || "Arrastra tu imagen aquí o haz clic";
-        document.getElementById('note-image-name').innerText = name;
+        setNoteImageName(name);
         triggerAutoSave();
     });
 
@@ -2341,8 +2112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             submitBtn.disabled = true;
             submitBtn.innerText = "Publicando...";
 
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) throw new Error("Debes iniciar sesión");
+            if (!api.auth.user()) throw new Error("Debes iniciar sesión");
 
             let imageUrl = '';
             if (noteImageInput.files.length > 0) {
@@ -2356,41 +2126,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 .split(',')
                 .map(k => k.trim())
                 .filter(k => k !== '');
-            let contentJSON = '{}';
-            if (editor) {
-                const contentData = await editor.save();
-                contentJSON = JSON.stringify(contentData);
-            }
+            const content = editor ? await editor.save() : { blocks: [] };
 
-            const title = document.getElementById('note-title').value.trim();
             const noteData = {
-                author_id: user.id,
-                title: title,
-                slug: generateSlug(title),
+                title: document.getElementById('note-title').value.trim(),
                 type: document.getElementById('note-type').value,
-                content: contentJSON,
+                content,
                 keywords: keywords,
-                status: 'published'
+                status: 'published',
+                image_url: imageUrl || null
             };
 
-            if (imageUrl) {
-                noteData.image_url = imageUrl;
-            }
-
             if (currentDraftId) {
-                const { error } = await supabaseClient.from('notes').update(noteData).eq('id', currentDraftId);
-                if (error) throw error;
+                await api.notes.update(currentDraftId, noteData);
             } else {
-                const { error } = await supabaseClient.from('notes').insert([noteData]);
-                if (error) throw error;
+                await api.notes.create(noteData);
             }
 
+            clearTimeout(autoSaveTimeout); // que no se guarde un borrador viejo después de publicar
             showToast("Nota de Vanguardia publicada.", "success");
             noteModal.classList.add('hidden');
             noteForm.reset();
-            if (quill) quill.setContents([]);
+            if (editor) await editor.clear();
             currentDraftId = null;
-            document.getElementById('note-image-name').innerText = "Arrastra tu imagen aquí o haz clic";
+            extractedThumbnailUrl = null;
+            resetDropzone(); // vuelve a mostrar "Arrastra tu imagen aquí"
             loadNotes();
 
         } catch (error) {
@@ -2555,8 +2315,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
-
-    // --- Initial Data Load ---
-    if (typeof loadPosts === 'function') loadPosts();
-    if (typeof loadNotes === 'function') loadNotes();
 });

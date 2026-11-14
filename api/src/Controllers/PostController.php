@@ -18,7 +18,8 @@ use Milis\Http\Request;
 
 final class PostController
 {
-    public const CATEGORIES = ['MILICIANOS', 'FILOSOFÍA', 'ESPIRITUALIDAD', 'HISTORIA', 'POLÍTICA'];
+    // El formulario del foro manda siempre "General"; las demás quedan disponibles.
+    public const CATEGORIES = ['GENERAL', 'MILICIANOS', 'FILOSOFÍA', 'ESPIRITUALIDAD', 'HISTORIA', 'POLÍTICA'];
 
     private const SELECT = 'SELECT p.id, p.author_id, p.title, p.content, p.category, p.image_path, p.youtube_id,
                p.poll_question, p.created_at, u.first_name, u.last_name,
@@ -66,7 +67,7 @@ final class PostController
             throw HttpError::invalid('El título y el contenido son obligatorios.');
         }
 
-        $category = mb_strtoupper((string) ($input->text('category', 'categoría', 30, required: false) ?? 'MILICIANOS'));
+        $category = mb_strtoupper((string) ($input->text('category', 'categoría', 30, required: false) ?? 'GENERAL'));
         if (!in_array($category, self::CATEGORIES, true)) {
             throw HttpError::invalid('La categoría no es válida.');
         }

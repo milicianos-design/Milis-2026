@@ -43,6 +43,17 @@ final class PostTest extends ApiTestCase
         $this->assertTrue($post['can_delete']);
     }
 
+    public function testCategoriaGeneralDelFormularioDelForo(): void
+    {
+        [$client] = $this->member();
+        // El formulario del foro manda siempre category = "General" (campo oculto).
+        [$status, $body] = $client->post('/api/posts', ['title' => 'T', 'content' => '<p>x</p>', 'category' => 'General']);
+        $this->assertSame(201, $status, json_encode($body));
+        $this->assertSame('GENERAL', $body['post']['category']);
+        [, $body] = $client->post('/api/posts', ['title' => 'T', 'content' => '<p>x</p>']);
+        $this->assertSame('GENERAL', $body['post']['category']);
+    }
+
     public function testValidacionesAlPublicar(): void
     {
         [$client] = $this->member();

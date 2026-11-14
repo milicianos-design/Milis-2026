@@ -19,6 +19,7 @@ use Milis\Http\Request;
 final class NoteController
 {
     private const WORDS_PER_MINUTE = 200;
+    public const TYPES = ['MILICIANOS', 'FILOSOFÍA', 'ESPIRITUALIDAD', 'HISTORIA', 'POLÍTICA'];
 
     public function __construct(
         private readonly Db $db,
@@ -135,7 +136,7 @@ final class NoteController
             throw HttpError::invalid('El estado de la nota no es válido.');
         }
         $type = mb_strtoupper((string) $input->text('type', 'tipo', 30));
-        if (!in_array($type, PostController::CATEGORIES, true)) {
+        if (!in_array($type, self::TYPES, true)) {
             throw HttpError::invalid('El tipo de nota no es válido.');
         }
         $title = $input->text('title', 'título', 200, required: $status === 'published') ?? 'Borrador sin título';
