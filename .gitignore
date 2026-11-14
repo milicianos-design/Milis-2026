@@ -1,6 +1,3 @@
-# Binarios
-tailwindcss.exe
-
 # Dependencias (lo más pesado, nunca se sube)
 node_modules/
 .pnpm-store/

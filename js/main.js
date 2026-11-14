@@ -1,5 +1,8 @@
 import { escapeHtml, jsArg, safeUrl, sanitizeHtml } from './security.js';
 
+// Portada de las notas que no tienen imagen propia (Vite la copia al build).
+const DEFAULT_NOTE_COVER = new URL('../assets/images/nota-portada.webp', import.meta.url).href;
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL; // Vercel inyectará esto en producción
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY; // Vercel inyectará esto en producción
 
@@ -1645,7 +1648,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (index === 0 && !query) {
                 card.className = "group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-xl h-72 cursor-pointer transition-all hover:-translate-y-1 mb-8 border border-white/10";
                 card.innerHTML = `
-                    <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60" src="${safeUrl(note.image_url) || 'https://images.unsplash.com/photo-1455390582262-044cdead277a'}" />
+                    <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60" src="${safeUrl(note.image_url) || DEFAULT_NOTE_COVER}" />
                     <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 p-6 z-20 w-full">
                         <div class="flex items-center gap-3 mb-3">

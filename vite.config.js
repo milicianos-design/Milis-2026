@@ -10,8 +10,7 @@ export default defineConfig({
         biencomun: resolve(__dirname, 'bien-comun-2026.html'),
         piergiorgio: resolve(__dirname, 'pier_giorgio.html'),
         promesas: resolve(__dirname, 'promesas.html'),
-        stacatalina: resolve(__dirname, 'sta_catalina.html'),
-        forostitch: resolve(__dirname, 'foro-stitch.html')
+        stacatalina: resolve(__dirname, 'sta_catalina.html')
       }
     }
   }
