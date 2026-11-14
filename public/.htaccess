@@ -39,10 +39,12 @@ AddType image/webp .webp
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 
-    # Qué puede cargar el sitio: todo lo propio, más los videos y miniaturas de YouTube.
+    # Qué puede cargar el sitio: todo lo propio, los videos y miniaturas de YouTube y Google Analytics
+    # (dominios que indica Google para GA4: googletagmanager.com carga el script, google-analytics.com recibe las visitas).
+    # worker-src blob: es para la animación de papelitos del campamento (canvas-confetti dibuja en un proceso aparte).
     # 'unsafe-inline' hace falta por los onclick="..." del HTML; igual impide cargar scripts de otros
     # sitios y mandar datos a servidores ajenos.
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com; media-src 'self'; font-src 'self' data:; connect-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com https://*.google-analytics.com https://*.googletagmanager.com; media-src 'self'; worker-src 'self' blob:; font-src 'self' data:; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 
     # HSTS: los navegadores que ya visitaron el sitio usan siempre HTTPS durante un año, aunque alguien
     # escriba http:// o intente interceptar la conexión. Requiere que el certificado SSL se mantenga válido

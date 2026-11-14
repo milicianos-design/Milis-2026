@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { TYPEFORM_QUESTIONS, CAMPAMENTO_CONFIG } from '../data/campamentoData';
 import { enviarPostulacion } from '../lib/postulaciones';
+import { trackEvent } from '../../../js/analytics.ts';
 
 export const TypeformLlamado: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -72,6 +73,7 @@ export const TypeformLlamado: React.FC = () => {
 
       // Formulario Completado (solo si la postulación quedó guardada)
       setIsCompleted(true);
+      trackEvent('postulacion_campamento');
       confetti({
         particleCount: 80,
         spread: 70,

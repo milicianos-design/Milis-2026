@@ -3,6 +3,15 @@
 Plataforma digital de los Milicianos: sitio institucional y de formación (Bien Común, Promesas,
 Pier Giorgio Frassati, Santa Catalina), con un foro y las Notas de Vanguardia para miembros registrados.
 
+## Estado actual (noviembre 2026)
+
+- **Publicado en Hostinger:** https://agrupacionjuvenil.com (páginas, API y base de datos).
+- **El Campamento Nacional todavía no tiene enlaces:** https://agrupacionjuvenil.com/Campamentobn/ está
+  publicada y funciona, pero **ninguna parte de agrupacionjuvenil.com lleva ahí** (ni el menú ni la portada).
+  Por ahora solo se llega con el link directo, así que sus visitas vienen de links compartidos.
+- **Falta apagar lo viejo:** el proyecto anterior en Vercel + Supabase y la versión anterior del campamento
+  (también en Vercel). Las postulaciones que llegaron antes del cambio están en una planilla de Google, no en la base.
+
 ## Cómo está armado
 
 | Parte | Tecnología | Dónde está |
@@ -15,7 +24,8 @@ Pier Giorgio Frassati, Santa Catalina), con un foro y las Notas de Vanguardia pa
 | Hosting | Hostinger (archivos estáticos + PHP) | — |
 
 No depende de servicios externos: fuentes, íconos, librerías e imágenes se sirven desde el propio sitio.
-Lo único externo son los videos de YouTube que se incrustan en posts y notas.
+Lo único externo son los videos de YouTube que se incrustan en posts y notas, y Google Analytics para las
+estadísticas de visitas (si no carga, el sitio funciona igual).
 
 ```
 ├── *.html                 páginas del sitio
@@ -23,6 +33,7 @@ Lo único externo son los videos de YouTube que se incrustan en posts y notas.
 ├── js/main.js             lógica de las páginas
 ├── js/api.js              cliente de la API (login, posts, notas…)
 ├── js/security.js         limpieza de lo que escriben los usuarios antes de mostrarlo
+├── js/analytics.ts        estadísticas de visitas (Google Analytics), compartido con el campamento
 ├── js/vendor/             editores (Quill, Editor.js) y scroll suave, empaquetados
 ├── src/input.css          estilos (Tailwind) y fuentes
 ├── assets/                imágenes, video y fuentes
@@ -115,6 +126,8 @@ npm run db:stop   # apaga la base al terminar
 **Con SSH (lo más simple):** completá los datos `DEPLOY_*` en `.env.local` (ver `.env.example`) y corré
 `npm run deploy`. Compila, sube el sitio, aplica migraciones nuevas y verifica que responda.
 No toca `api/config.php` ni las imágenes de `uploads/`.
+Cada persona que publica usa su propia llave SSH (se crea como indica `.env.example` y se agrega en hPanel →
+*Acceso SSH*): no compartan llaves.
 
 **A mano:**
 
@@ -138,6 +151,22 @@ El formulario de `/Campamentobn/` guarda cada postulación en la tabla `campamen
 - `https://tudominio.com/api/campamento/postulaciones.csv` → descarga una planilla que abre en Excel o Google Sheets.
 
 La API limita los envíos (20 por hora desde una misma conexión) y descarta los de bots con un campo trampa.
+
+## Estadísticas de visitas (Google Analytics)
+
+El sitio usa Google Analytics 4 para saber qué páginas se visitan, incluida `/Campamentobn/`. Todo está en `js/analytics.ts`:
+
+- `MEASUREMENT_ID` es el ID de medición de la propiedad (`G-…`, en analytics.google.com → *Administrar* →
+  *Flujos de datos*). Si está vacío, no se mide nada.
+- Solo se activa en `agrupacionjuvenil.com` (`PRODUCTION_HOST`): con `npm run dev` no se carga, así las
+  pruebas no ensucian las estadísticas. Si el sitio cambia de dominio, hay que actualizarlo.
+- De cada dirección se envía solo la ruta y los parámetros `utm_*`. Los tokens de los emails
+  (`?confirmar=`, `?nueva-clave=`) nunca llegan a Google.
+- Además de las visitas, registra el evento `postulacion_campamento` cada vez que alguien completa el
+  formulario del campamento. Para medir otra acción: `trackEvent('nombre_del_evento')`, importado de `js/analytics.ts`.
+- Para saber de dónde llega la gente, compartí los links con `utm_source`, por ejemplo
+  `https://agrupacionjuvenil.com/Campamentobn/?utm_source=instagram` o `?utm_source=whatsapp`.
+- La política de seguridad (`public/.htaccess`) ya permite los dominios de Google que necesita GA4.
 
 ## Seguridad
 

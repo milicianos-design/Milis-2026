@@ -1,3 +1,4 @@
+import './analytics.ts';
 import { escapeHtml, jsArg, safeUrl, sanitizeHtml } from './security.js';
 import * as api from './api.js';
 
