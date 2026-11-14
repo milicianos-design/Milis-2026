@@ -104,7 +104,7 @@ npm run db:stop   # apaga la base al terminar
    tiene que ser tu IP real. Si aparece una IP de Hostinger, poné `'client_ip_header' => 'X-Forwarded-For'`
    en `api/config.php` (si no, el límite de intentos de login trataría a todos los visitantes como uno solo).
 10. **Dominio:** si el dominio todavía apunta a Vercel, cambiá los DNS para que apunten a Hostinger (hPanel indica
-    los nameservers o la IP). Cuando el sitio ande por HTTPS, podés activar la línea `Strict-Transport-Security` de `public/.htaccess`.
+    los nameservers o la IP). `public/.htaccess` ya envía `Strict-Transport-Security` (HSTS): si cambiás de dominio o hosting, asegurate de tener SSL andando antes de mudar el sitio.
 11. **Apagar lo viejo:** con todo funcionando en Hostinger, eliminá el proyecto de Vercel y el de Supabase.
 
 ### Actualizaciones

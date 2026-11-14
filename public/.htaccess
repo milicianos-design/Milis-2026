@@ -37,8 +37,10 @@ AddType image/webp .webp
     # sitios y mandar datos a servidores ajenos.
     Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com; media-src 'self'; font-src 'self' data:; connect-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 
-    # Activar cuando HTTPS ya funcione bien en el dominio (obliga a los navegadores a usar siempre HTTPS):
-    # Header always set Strict-Transport-Security "max-age=31536000"
+    # HSTS: los navegadores que ya visitaron el sitio usan siempre HTTPS durante un año, aunque alguien
+    # escriba http:// o intente interceptar la conexión. Requiere que el certificado SSL se mantenga válido
+    # (Hostinger lo renueva solo). Sin includeSubDomains, para no afectar subdominios que no tengan HTTPS.
+    Header always set Strict-Transport-Security "max-age=31536000"
 
     # Los archivos que genera Vite llevan un hash en el nombre (main-AbC123xy.js): nunca cambian,
     # se pueden guardar en caché un año. Las páginas HTML se revisan siempre para ver la última versión.
