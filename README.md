@@ -9,6 +9,8 @@ Pier Giorgio Frassati, Santa Catalina), con un foro y las Notas de Vanguardia pa
 - **El Campamento Nacional todavía no tiene enlaces:** https://agrupacionjuvenil.com/Campamentobn/ está
   publicada y funciona, pero **ninguna parte de agrupacionjuvenil.com lleva ahí** (ni el menú ni la portada).
   Por ahora solo se llega con el link directo, así que sus visitas vienen de links compartidos.
+- **Cada cambio que se sube a `main` se publica solo** en agrupacionjuvenil.com (ver *Actualizaciones*).
+  Vercel ya no está conectado a este repositorio.
 - **Falta apagar lo viejo:** el proyecto anterior en Vercel + Supabase y la versión anterior del campamento
   (también en Vercel). Las postulaciones que llegaron antes del cambio están en una planilla de Google, no en la base.
 
@@ -123,7 +125,18 @@ npm run db:stop   # apaga la base al terminar
 
 ### Actualizaciones
 
-**Con SSH (lo más simple):** completá los datos `DEPLOY_*` en `.env.local` (ver `.env.example`) y corré
+**Automática (lo normal):** cada vez que se sube algo a la rama `main`, GitHub compila el sitio y lo publica
+en Hostinger (`.github/workflows/publicar.yml`). El avance y los errores se ven en la pestaña *Actions* del
+repositorio; desde ahí también se puede volver a publicar a mano (*Publicar en Hostinger* → *Run workflow*).
+Si la compilación falla, no se publica nada y el sitio sigue con la versión anterior.
+Como todo lo que llega a `main` sale al sitio, para cambios grandes conviene trabajar en otra rama y pasarla
+a `main` cuando esté probada.
+
+Usa una llave SSH exclusiva de GitHub, guardada en los secretos del repositorio (*Settings* → *Secrets and
+variables* → *Actions*: `DEPLOY_SSH`, `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`). Para revocarla, se borra esa
+llave en hPanel → *Acceso SSH*.
+
+**Desde tu compu, con SSH:** completá los datos `DEPLOY_*` en `.env.local` (ver `.env.example`) y corré
 `npm run deploy`. Compila, sube el sitio, aplica migraciones nuevas y verifica que responda.
 No toca `api/config.php` ni las imágenes de `uploads/`.
 Cada persona que publica usa su propia llave SSH (se crea como indica `.env.example` y se agrega en hPanel →

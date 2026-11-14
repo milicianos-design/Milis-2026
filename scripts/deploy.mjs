@@ -3,7 +3,8 @@
 //   npm run deploy
 //
 // Solo agrega o reemplaza archivos: nunca borra api/config.php ni las imágenes de uploads/
-// (no están en dist/). Los datos de conexión se leen de .env.local:
+// (no están en dist/). Los datos de conexión se leen de .env.local (o de variables de entorno, como
+// hace la publicación automática de GitHub en .github/workflows/publicar.yml):
 //   DEPLOY_SSH=usuario@ip  DEPLOY_PORT=65002  DEPLOY_KEY=.dev/ssh/hostinger
 //   DEPLOY_PATH=domains/tudominio.com/public_html  DEPLOY_URL=https://tudominio.com
 import { spawn, execFileSync } from 'node:child_process';
@@ -15,7 +16,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const env = { ...readEnvLocal(), ...process.env };
 
 const missing = ['DEPLOY_SSH', 'DEPLOY_PORT', 'DEPLOY_KEY', 'DEPLOY_PATH', 'DEPLOY_URL'].filter((key) => !env[key]);
-if (missing.length) fail(`Faltan en .env.local: ${missing.join(', ')} (ver .env.example).`);
+if (missing.length) fail(`Faltan datos de publicación: ${missing.join(', ')} (en .env.local, ver .env.example).`);
 if (!/^[\w.\/-]+$/.test(env.DEPLOY_PATH)) fail('DEPLOY_PATH tiene caracteres no permitidos.');
 
 const key = resolve(ROOT, env.DEPLOY_KEY);
@@ -48,8 +49,10 @@ console.log('\nListo. Si ves la versión anterior, vaciá la caché del CDN en h
 
 /** tar de dist/ por la conexión SSH (sin metadatos de macOS) y se extrae encima de lo que hay. */
 function upload() {
+  // --no-mac-metadata solo existe en el tar de macOS; en Linux (GitHub) no hace falta.
+  const flags = process.platform === 'darwin' ? ['--no-mac-metadata', '--no-xattrs'] : [];
   return new Promise((done, reject) => {
-    const tar = spawn('tar', ['--no-mac-metadata', '--no-xattrs', '-czf', '-', '-C', join(ROOT, 'dist'), '.'], {
+    const tar = spawn('tar', [...flags, '-czf', '-', '-C', join(ROOT, 'dist'), '.'], {
       env: { ...process.env, COPYFILE_DISABLE: '1' },
       stdio: ['ignore', 'pipe', 'inherit'],
     });

@@ -1,0 +1,68 @@
+# Publicación automática: cada vez que se sube algo a la rama main, GitHub compila el sitio y lo publica
+# en Hostinger con el mismo script que `npm run deploy` (sube dist/ por SSH, aplica migraciones y verifica).
+# También se puede lanzar a mano: pestaña Actions → "Publicar en Hostinger" → Run workflow.
+#
+# Necesita tres secretos (Settings → Secrets and variables → Actions):
+#   DEPLOY_SSH          usuario@ip del acceso SSH de Hostinger
+#   DEPLOY_SSH_KEY      llave privada SSH exclusiva de GitHub (su .pub está agregada en hPanel → Acceso SSH)
+#   DEPLOY_KNOWN_HOSTS  huella del servidor, para no conectarse a uno falso (línea de .dev/ssh/known_hosts)
+
+name: Publicar en Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Una publicación a la vez: si llega otro cambio mientras se publica, espera su turno.
+concurrency:
+  group: publicar-hostinger
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publicar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Revisar tipos (página del campamento)
+        run: npm run typecheck
+
+      - name: Preparar la llave SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
+            echo "::error::Faltan los secretos DEPLOY_SSH_KEY o DEPLOY_KNOWN_HOSTS (ver el comienzo de este archivo)."
+            exit 1
+          fi
+          install -d -m 700 .dev/ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > .dev/ssh/hostinger
+          chmod 600 .dev/ssh/hostinger
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > .dev/ssh/known_hosts
+
+      - name: Compilar y publicar
+        env:
+          DEPLOY_SSH: ${{ secrets.DEPLOY_SSH }}
+          DEPLOY_PORT: '65002'
+          DEPLOY_KEY: .dev/ssh/hostinger
+          DEPLOY_PATH: domains/agrupacionjuvenil.com/public_html
+          DEPLOY_URL: https://agrupacionjuvenil.com
+        run: npm run deploy
+
+      - name: Borrar la llave
+        if: always()
+        run: rm -rf .dev/ssh
