@@ -73,6 +73,7 @@ npm run db:stop   # apaga la base al terminar
 | `npm test` | Pruebas de la API (necesita `npm run db` corriendo) |
 | `npm run build` | Compila el sitio en `dist/` (incluye la API con sus dependencias de producción) |
 | `npm run package` | Compila y arma `build/milis-hostinger.zip` para subir |
+| `npm run deploy` | Compila y publica en Hostinger por SSH (datos en `.env.local`) |
 | `npm run icons` | Regenera la fuente de íconos después de agregar o quitar un ícono de Material Symbols |
 
 ## Publicar en Hostinger
@@ -107,6 +108,12 @@ npm run db:stop   # apaga la base al terminar
 11. **Apagar lo viejo:** con todo funcionando en Hostinger, eliminá el proyecto de Vercel y el de Supabase.
 
 ### Actualizaciones
+
+**Con SSH (lo más simple):** completá los datos `DEPLOY_*` en `.env.local` (ver `.env.example`) y corré
+`npm run deploy`. Compila, sube el sitio, aplica migraciones nuevas y verifica que responda.
+No toca `api/config.php` ni las imágenes de `uploads/`.
+
+**A mano:**
 
 1. `npm run package`
 2. Subí el zip a `public_html` y extraelo encima. Se reemplazan los archivos del sitio;

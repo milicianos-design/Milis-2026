@@ -10,7 +10,8 @@
     "db": "node scripts/dev-db.mjs start",
     "db:stop": "node scripts/dev-db.mjs stop",
     "test": "composer --working-dir=api test",
-    "package": "npm run build && mkdir -p build && rm -f build/milis-hostinger.zip && cd dist && zip -qr ../build/milis-hostinger.zip . -x '*.DS_Store'"
+    "package": "npm run build && mkdir -p build && rm -f build/milis-hostinger.zip && cd dist && zip -qr ../build/milis-hostinger.zip . -x '*.DS_Store'",
+    "deploy": "node scripts/deploy.mjs"
   },
   "devDependencies": {
     "autoprefixer": "^10.6.2",
