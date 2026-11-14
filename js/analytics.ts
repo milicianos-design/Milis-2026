@@ -9,7 +9,7 @@
 
 // ID de medición de GA4 ("G-…"): analytics.google.com → Administrar → Flujos de datos → el flujo web.
 // Vacío = desactivado.
-const MEASUREMENT_ID = 'G-WSVFMFHD45';
+const MEASUREMENT_ID: string = 'G-WSVFMFHD45';
 const PRODUCTION_HOST = 'agrupacionjuvenil.com';
 
 declare global {
