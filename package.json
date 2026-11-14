@@ -9,7 +9,8 @@
     "icons": "node scripts/update-icons.mjs",
     "db": "node scripts/dev-db.mjs start",
     "db:stop": "node scripts/dev-db.mjs stop",
-    "test": "composer --working-dir=api test"
+    "test": "composer --working-dir=api test",
+    "package": "npm run build && mkdir -p build && rm -f build/milis-hostinger.zip && cd dist && zip -qr ../build/milis-hostinger.zip . -x '*.DS_Store'"
   },
   "devDependencies": {
     "autoprefixer": "^10.6.2",

@@ -1,0 +1,55 @@
+# Configuración del sitio para Hostinger (Apache/LiteSpeed). Va en public_html/.htaccess.
+# /api y /uploads tienen además su propio .htaccess.
+
+Options -Indexes
+AddDefaultCharset UTF-8
+AddType video/mp4 .mp4
+AddType font/woff2 .woff2
+AddType image/webp .webp
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Siempre HTTPS (Hostinger puede estar detrás de un proxy: también se mira X-Forwarded-Proto).
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Una sola dirección para el sitio: www.tudominio.com → tudominio.com.
+    # Si preferís la versión con www, invertí la regla. Tiene que coincidir con app_url de api/config.php.
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Archivos ocultos (.env, .git, etc.) nunca se sirven. .well-known queda accesible para el certificado SSL.
+<IfModule mod_rewrite.c>
+    RewriteRule (^|/)\.(?!well-known/) - [F]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+    # Qué puede cargar el sitio: todo lo propio, más los videos y miniaturas de YouTube.
+    # 'unsafe-inline' hace falta por los onclick="..." del HTML; igual impide cargar scripts de otros
+    # sitios y mandar datos a servidores ajenos.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com; media-src 'self'; font-src 'self' data:; connect-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+
+    # Activar cuando HTTPS ya funcione bien en el dominio (obliga a los navegadores a usar siempre HTTPS):
+    # Header always set Strict-Transport-Security "max-age=31536000"
+
+    # Los archivos que genera Vite llevan un hash en el nombre (main-AbC123xy.js): nunca cambian,
+    # se pueden guardar en caché un año. Las páginas HTML se revisan siempre para ver la última versión.
+    <FilesMatch "-[A-Za-z0-9_-]{8}\.(js|css|webp|png|jpe?g|gif|svg|woff2|mp4)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.html$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/json image/svg+xml
+</IfModule>

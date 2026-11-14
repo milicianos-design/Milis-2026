@@ -1,7 +1,8 @@
 -- Esquema inicial de la plataforma Milicianos.
--- Todas las fechas se guardan en UTC.
+-- Todas las fechas se guardan en UTC. Usa IF NOT EXISTS para poder importarlo a mano (phpMyAdmin)
+-- y después correr bin/migrate.php sin que falle.
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     email             VARCHAR(254) NOT NULL,
     password_hash     VARCHAR(255) NOT NULL,
@@ -15,7 +16,7 @@ CREATE TABLE users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Sesiones de login. La cookie guarda un token aleatorio; acá solo su hash.
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     token_hash   CHAR(64) PRIMARY KEY,
     user_id      INT UNSIGNED NOT NULL,
     csrf_token   CHAR(64) NOT NULL,
@@ -30,7 +31,7 @@ CREATE TABLE sessions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tokens de un solo uso enviados por email (confirmar cuenta, restablecer contraseña).
-CREATE TABLE user_tokens (
+CREATE TABLE IF NOT EXISTS user_tokens (
     token_hash CHAR(64) PRIMARY KEY,
     user_id    INT UNSIGNED NOT NULL,
     purpose    ENUM('verify_email', 'reset_password') NOT NULL,
@@ -42,14 +43,14 @@ CREATE TABLE user_tokens (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Contadores para limitar intentos (login, registro, recuperación de clave, publicaciones).
-CREATE TABLE rate_limits (
+CREATE TABLE IF NOT EXISTS rate_limits (
     bucket       VARCHAR(190) PRIMARY KEY,
     window_start DATETIME NOT NULL,
     hits         INT UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Imágenes subidas por los usuarios (para validar que un post/nota use una imagen propia).
-CREATE TABLE uploads (
+CREATE TABLE IF NOT EXISTS uploads (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id    INT UNSIGNED NOT NULL,
     kind       ENUM('post', 'note') NOT NULL,
@@ -59,7 +60,7 @@ CREATE TABLE uploads (
     CONSTRAINT fk_uploads_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     author_id     INT UNSIGNED NOT NULL,
     title         VARCHAR(200) NOT NULL,
@@ -73,7 +74,7 @@ CREATE TABLE posts (
     CONSTRAINT fk_posts_author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE post_likes (
+CREATE TABLE IF NOT EXISTS post_likes (
     post_id    INT UNSIGNED NOT NULL,
     user_id    INT UNSIGNED NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -82,7 +83,7 @@ CREATE TABLE post_likes (
     CONSTRAINT fk_post_likes_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE poll_options (
+CREATE TABLE IF NOT EXISTS poll_options (
     id       INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     post_id  INT UNSIGNED NOT NULL,
     position TINYINT UNSIGNED NOT NULL,
@@ -92,7 +93,7 @@ CREATE TABLE poll_options (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Un voto por usuario y encuesta (la clave primaria lo garantiza).
-CREATE TABLE poll_votes (
+CREATE TABLE IF NOT EXISTS poll_votes (
     post_id    INT UNSIGNED NOT NULL,
     user_id    INT UNSIGNED NOT NULL,
     option_id  INT UNSIGNED NOT NULL,
@@ -104,7 +105,7 @@ CREATE TABLE poll_votes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Usuarios que pidieron "Ver resultados" sin votar.
-CREATE TABLE poll_reveals (
+CREATE TABLE IF NOT EXISTS poll_reveals (
     post_id INT UNSIGNED NOT NULL,
     user_id INT UNSIGNED NOT NULL,
     PRIMARY KEY (post_id, user_id),
@@ -112,7 +113,7 @@ CREATE TABLE poll_reveals (
     CONSTRAINT fk_poll_reveals_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     post_id    INT UNSIGNED NOT NULL,
     author_id  INT UNSIGNED NOT NULL,
@@ -124,7 +125,7 @@ CREATE TABLE comments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Notas de Vanguardia. content guarda el JSON de Editor.js.
-CREATE TABLE notes (
+CREATE TABLE IF NOT EXISTS notes (
     id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     author_id        INT UNSIGNED NOT NULL,
     title            VARCHAR(200) NOT NULL,
@@ -143,7 +144,7 @@ CREATE TABLE notes (
     CONSTRAINT fk_notes_author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE note_keywords (
+CREATE TABLE IF NOT EXISTS note_keywords (
     note_id INT UNSIGNED NOT NULL,
     keyword VARCHAR(40) NOT NULL,
     PRIMARY KEY (note_id, keyword),
