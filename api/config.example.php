@@ -14,6 +14,10 @@ return [
     // Otros orígenes aceptados (por ejemplo 'https://www.tudominio.com').
     'trusted_origins' => [],
 
+    // Si el sitio pasa por el CDN de Hostinger y la API ve la IP del CDN en vez de la del visitante
+    // (se nota en la columna "ip" de la tabla sessions: todas iguales o de Hostinger), poné 'X-Forwarded-For'.
+    'client_ip_header' => null,
+
     // Base de datos (en Hostinger: hPanel → Bases de datos → MySQL).
     'db' => [
         'host' => 'localhost',

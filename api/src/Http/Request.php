@@ -15,10 +15,12 @@ final class Request
         private readonly array $cookies,
         private readonly array $files,
         private readonly string $body,
+        private readonly ?string $clientIpHeader = null,
     ) {
     }
 
-    public static function fromGlobals(): self
+    /** @param ?string $clientIpHeader header con la IP real del visitante cuando hay un CDN (config client_ip_header) */
+    public static function fromGlobals(?string $clientIpHeader = null): self
     {
         $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
         $path = preg_replace('#^/api(?=/|$)#', '', $path);
@@ -32,6 +34,7 @@ final class Request
             $_COOKIE,
             $_FILES,
             (string) file_get_contents('php://input'),
+            $clientIpHeader,
         );
     }
 
@@ -70,8 +73,20 @@ final class Request
         return is_array($file) && isset($file['tmp_name'], $file['error']) && !is_array($file['tmp_name']) ? $file : null;
     }
 
+    /**
+     * IP del visitante (se usa para limitar intentos). Detrás de un CDN, REMOTE_ADDR es la IP del CDN y la
+     * real viene en un header como X-Forwarded-For. De esa lista se toma la última IP, que es la que agregó
+     * el CDN: las anteriores las puede inventar quien hace el pedido.
+     */
     public function ip(): string
     {
+        if ($this->clientIpHeader !== null) {
+            $list = explode(',', (string) $this->header($this->clientIpHeader));
+            $candidate = trim((string) end($list));
+            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
+        }
         return (string) ($this->server['REMOTE_ADDR'] ?? '0.0.0.0');
     }
 

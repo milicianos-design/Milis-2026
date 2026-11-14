@@ -99,6 +99,9 @@ npm run db:stop   # apaga la base al terminar
    Después: por SSH `php bin/set-role.php tu@email.com admin`, o en phpMyAdmin
    `UPDATE users SET role = 'admin' WHERE email = 'tu@email.com';`
 9. **Probar:** login, un post con imagen y encuesta, un comentario y una nota.
+   Si el sitio pasa por el CDN de Hostinger, revisá en phpMyAdmin la columna `ip` de la tabla `sessions`:
+   tiene que ser tu IP real. Si aparece una IP de Hostinger, poné `'client_ip_header' => 'X-Forwarded-For'`
+   en `api/config.php` (si no, el límite de intentos de login trataría a todos los visitantes como uno solo).
 10. **Dominio:** si el dominio todavía apunta a Vercel, cambiá los DNS para que apunten a Hostinger (hPanel indica
     los nameservers o la IP). Cuando el sitio ande por HTTPS, podés activar la línea `Strict-Transport-Security` de `public/.htaccess`.
 11. **Apagar lo viejo:** con todo funcionando en Hostinger, eliminá el proyecto de Vercel y el de Supabase.
@@ -110,6 +113,7 @@ npm run db:stop   # apaga la base al terminar
    **no se tocan** `api/config.php` ni las imágenes de `uploads/` (no borres esas dos cosas).
 3. Si la actualización trae migraciones nuevas en `api/database/migrations/`, corré `php bin/migrate.php`
    (o importá en phpMyAdmin solo los archivos nuevos).
+4. Si el CDN de Hostinger está activo, vaciá su caché desde hPanel (sección CDN) para que todos vean la versión nueva.
 
 ### Copias de seguridad
 

@@ -35,7 +35,7 @@ final class App
         $config = null;
         try {
             $config = Config::load();
-            $request = Request::fromGlobals();
+            $request = Request::fromGlobals($config->get('client_ip_header'));
             $db = new Db($config);
             $sessions = new Sessions($db, $config, $request);
 
