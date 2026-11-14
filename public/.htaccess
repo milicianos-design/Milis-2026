@@ -19,6 +19,13 @@ AddType image/webp .webp
     # Si preferís la versión con www, invertí la regla. Tiene que coincidir con app_url de api/config.php.
     RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
     RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+    # Página del Campamento Nacional: vive en /Campamentobn/. El servidor distingue mayúsculas de
+    # minúsculas, así que cualquier otra forma de escribirla (/campamentobn, /CAMPAMENTOBN…) redirige ahí.
+    RewriteRule ^Campamentobn$ https://%{HTTP_HOST}/Campamentobn/ [L,R=301]
+    RewriteCond %{REQUEST_URI} !^/Campamentobn(/|$)
+    RewriteCond %{REQUEST_URI} ^/campamentobn(/.*)?$ [NC]
+    RewriteRule ^ https://%{HTTP_HOST}/Campamentobn%1 [L,R=301]
 </IfModule>
 
 # Archivos ocultos (.env, .git, etc.) nunca se sirven. .well-known queda accesible para el certificado SSL.

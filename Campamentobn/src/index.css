@@ -1,0 +1,287 @@
+/* Tipografías empaquetadas con el sitio (antes venían de Google Fonts y cdnfonts). */
+@import '@fontsource/raleway/400.css';
+@import '@fontsource/raleway/500.css';
+@import '@fontsource/raleway/600.css';
+@import '@fontsource/raleway/700.css';
+@import '@fontsource/raleway/800.css';
+@import '@fontsource/raleway/900.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+/* Tailwind propio de esta página (colores y tipografías PBC), separado del sitio principal. */
+@config "../tailwind.config.js";
+
+@font-face {
+  font-family: 'Coolvetica';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/coolvetica.woff2') format('woff2');
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Soporte universal de text-wrap balance y pretty para evitar líneas con una sola palabra */
+  h1, h2, h3, h4, h5, h6, .text-balance {
+    text-wrap: balance;
+  }
+  p, li, .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Efecto Granulado / Analog Noise */
+.bg-grain {
+  background-image: radial-gradient(rgba(100, 213, 171, 0.10) 1px, transparent 0),
+                    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+}
+
+/* Motion Blur Watermarks */
+.motion-watermark {
+  filter: blur(2.5px);
+  text-shadow: -22px 0px 18px rgba(100, 213, 171, 0.28), 22px 0px 18px rgba(10, 14, 13, 0.4);
+  user-select: none;
+  pointer-events: none;
+}
+
+.motion-watermark-editorial {
+  filter: blur(2px);
+  text-shadow: -18px 0px 16px rgba(10, 14, 13, 0.18), 18px 0px 16px rgba(10, 14, 13, 0.08);
+  user-select: none;
+  pointer-events: none;
+}
+
+.font-coolvetica {
+  font-family: 'Coolvetica', 'Arial Black', sans-serif;
+  letter-spacing: 0.015em;
+}
+
+.editorial-border {
+  border: 2px solid #0A0E0D;
+}
+
+/* Ticket muescas laterales troqueladas */
+.ticket-notch-left, .ticket-notch-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background-color: #F4F9F7;
+  z-index: 20;
+}
+.ticket-notch-left {
+  left: -9px;
+}
+.ticket-notch-right {
+  right: -9px;
+}
+
+/* Scrollbar sutil */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0E0D;
+}
+::-webkit-scrollbar-thumb {
+  background: #17211E;
+  border-radius: 4px;
+  border: 1px solid rgba(100, 213, 171, 0.3);
+}
+
+/* Micro-Interactions & Animations */
+@keyframes cta-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px -3px rgba(100, 213, 171, 0.5), 0 0 0 0 rgba(100, 213, 171, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 35px 2px rgba(100, 213, 171, 0.7), 0 0 0 6px rgba(100, 213, 171, 0.0);
+  }
+}
+.animate-cta-pulse {
+  animation: cta-pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes slideUpReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-slide-up-1 {
+  animation: slideUpReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-slide-up-2 {
+  animation: slideUpReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+}
+.animate-slide-up-3 {
+  animation: slideUpReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+
+/* Hero Title Reveal Opción 3: Blur + 3D Tilt Letra por Letra */
+:root {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hero-char-wrap {
+  display: inline-block;
+  perspective: 500px;
+}
+
+@keyframes heroCharBlurTilt {
+  0% {
+    opacity: 0;
+    filter: blur(7px);
+    transform: translateY(12px) rotateX(-45deg) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px) rotateX(0deg) scale(1);
+  }
+}
+
+.hero-char-blur-tilt {
+  display: inline-block;
+  opacity: 0;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity, filter;
+  animation: heroCharBlurTilt 500ms var(--ease-out-strong) forwards;
+}
+
+@keyframes heroSubtitleFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-subtitle-in {
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: heroSubtitleFadeUp 450ms var(--ease-out-strong) 680ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-char-blur-tilt,
+  .hero-subtitle-in {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+@keyframes border-glow-loop {
+  0% {
+    border-color: rgba(100, 213, 171, 0.3);
+    box-shadow: 0 0 10px -2px rgba(100, 213, 171, 0.2), inset 0 0 8px -3px rgba(100, 213, 171, 0.1);
+  }
+  50% {
+    border-color: rgba(100, 213, 171, 0.9);
+    box-shadow: 0 0 22px 3px rgba(100, 213, 171, 0.55), inset 0 0 14px -1px rgba(100, 213, 171, 0.25);
+  }
+  100% {
+    border-color: rgba(100, 213, 171, 0.3);
+    box-shadow: 0 0 10px -2px rgba(100, 213, 171, 0.2), inset 0 0 8px -3px rgba(100, 213, 171, 0.1);
+  }
+}
+.metric-card-glow {
+  animation: border-glow-loop 3.5s ease-in-out infinite;
+}
+.metric-card-glow:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.metric-card-glow:nth-child(3) {
+  animation-delay: 1.6s;
+}
+.metric-card-glow:nth-child(4) {
+  animation-delay: 2.4s;
+}
+
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+.animate-badge-float {
+  animation: badge-float 4s ease-in-out infinite;
+}
+
+/* 3D Flip Card Container para Boarding Pass */
+.ticket-flip-container {
+  perspective: 1400px;
+}
+.ticket-flipper {
+  display: grid;
+  grid-template-columns: 1fr;
+  transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+.ticket-flipper.is-flipped {
+  transform: rotateY(180deg);
+}
+.ticket-front, .ticket-back {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.ticket-back {
+  transform: rotateY(180deg);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Waveform Animation on Audio playing */
+@keyframes soundwave {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+.audio-bar.playing {
+  animation: soundwave 1s ease-in-out infinite;
+}
+.audio-bar:nth-child(1) { animation-delay: 0.1s; }
+.audio-bar:nth-child(2) { animation-delay: 0.35s; }
+.audio-bar:nth-child(3) { animation-delay: 0.2s; }
+.audio-bar:nth-child(4) { animation-delay: 0.5s; }
+.audio-bar:nth-child(5) { animation-delay: 0.15s; }
+.audio-bar:nth-child(6) { animation-delay: 0.4s; }
+.audio-bar:nth-child(7) { animation-delay: 0.25s; }
+.audio-bar:nth-child(8) { animation-delay: 0.45s; }
+
+/* Custom input focus ring glow */
+.input-micro-focus:focus {
+  border-color: #64D5AB;
+  box-shadow: 0 0 16px -2px rgba(100, 213, 171, 0.4);
+  background-color: #17211E;
+}
+
+
+

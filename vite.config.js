@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { cpSync, rmSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
 
 const API_PORT = 8787;
 
@@ -63,7 +64,12 @@ function phpApiBuild() {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '');
   return {
-    plugins: [phpDevServer(env.PHP_BIN || 'php'), phpApiBuild()],
+    plugins: [
+      // React solo para la página del campamento (Campamentobn/); el resto del sitio es JS sin framework.
+      react({ include: /Campamentobn\/.*\.[jt]sx?$/ }),
+      phpDevServer(env.PHP_BIN || 'php'),
+      phpApiBuild(),
+    ],
     server: {
       // Puerto fijo: la API solo acepta pedidos que vengan de http://localhost:5173.
       port: 5173,
@@ -82,6 +88,7 @@ export default defineConfig(({ mode }) => {
           piergiorgio: resolve(__dirname, 'pier_giorgio.html'),
           promesas: resolve(__dirname, 'promesas.html'),
           stacatalina: resolve(__dirname, 'sta_catalina.html'),
+          campamentobn: resolve(__dirname, 'Campamentobn/index.html'),
         },
       },
     },

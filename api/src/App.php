@@ -10,6 +10,7 @@ use Milis\Content\HtmlSanitizer;
 use Milis\Content\ImageUploader;
 use Milis\Content\Polls;
 use Milis\Controllers\AuthController;
+use Milis\Controllers\CampamentoController;
 use Milis\Controllers\CommentController;
 use Milis\Controllers\NoteController;
 use Milis\Controllers\PostController;
@@ -17,6 +18,7 @@ use Milis\Controllers\UploadController;
 use Milis\Http\HttpError;
 use Milis\Http\JsonResponse;
 use Milis\Http\Request;
+use Milis\Http\Response;
 use Milis\Http\Router;
 use Milis\Mail\Mailer;
 
@@ -45,7 +47,7 @@ final class App
             }
 
             $result = self::router($db, $config, $sessions)->dispatch($request);
-            ($result instanceof JsonResponse ? $result : new JsonResponse($result))->send();
+            ($result instanceof Response ? $result : new JsonResponse($result))->send();
 
             if (random_int(1, 50) === 1) {
                 self::cleanup($db);
@@ -72,6 +74,7 @@ final class App
         $comments = new CommentController($db, $sessions, $limiter);
         $notes = new NoteController($db, $sessions, $limiter, new EditorJsContent($sanitizer), $uploader);
         $uploads = new UploadController($sessions, $limiter, $uploader);
+        $campamento = new CampamentoController($db, $sessions, $limiter);
 
         $router = new Router();
         $router->add('GET', '/auth/me', $auth->me(...));
@@ -101,6 +104,10 @@ final class App
         $router->add('DELETE', '/notes/{id}', $notes->delete(...));
 
         $router->add('POST', '/uploads', $uploads->store(...));
+
+        $router->add('POST', '/campamento/postulaciones', $campamento->create(...));
+        $router->add('GET', '/campamento/postulaciones', $campamento->list(...));
+        $router->add('GET', '/campamento/postulaciones.csv', $campamento->csv(...));
         return $router;
     }
 

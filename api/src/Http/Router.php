@@ -11,7 +11,12 @@ final class Router
 
     public function add(string $method, string $pattern, callable $handler): void
     {
-        $regex = '#^' . preg_replace('#\{(\w+)\}#', '(?P<$1>[0-9]{1,10})', $pattern) . '$#';
+        // Las partes fijas se toman literalmente (por ejemplo el "." de ".csv"); {param} es un número.
+        $regex = '#^' . preg_replace_callback(
+            '#\{(\w+)\}|[^{]+#',
+            fn (array $m) => isset($m[1]) && $m[1] !== '' ? "(?P<{$m[1]}>[0-9]{1,10})" : preg_quote($m[0], '#'),
+            $pattern
+        ) . '$#';
         $this->routes[] = [$method, $regex, $handler];
     }
 

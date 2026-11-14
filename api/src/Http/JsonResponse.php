@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Milis\Http;
 
-final class JsonResponse
+final class JsonResponse implements Response
 {
     public function __construct(public readonly mixed $data, public readonly int $status = 200)
     {

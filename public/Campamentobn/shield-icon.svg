@@ -1,0 +1,16 @@
+<svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="100,10 185,58 185,162 100,210 15,162 15,58" stroke="#64D5AB" stroke-width="12" stroke-linejoin="miter" fill="#121917" fill-opacity="0.8"/>
+  <path d="M58,58 L70,36 L82,58" stroke="#64D5AB" stroke-width="9" stroke-linejoin="miter"/>
+  <path d="M58,58 L58,72 M82,58 L82,72" stroke="#64D5AB" stroke-width="9"/>
+  <path d="M18,86 C35,64 95,64 102,98 L102,148" stroke="#64D5AB" stroke-width="10" stroke-linecap="round"/>
+  <line x1="18" y1="115" x2="101" y2="128" stroke="#64D5AB" stroke-width="9"/>
+  <line x1="18" y1="142" x2="118" y2="162" stroke="#64D5AB" stroke-width="9" stroke-linecap="round"/>
+  <line x1="18" y1="138" x2="54" y2="121" stroke="#64D5AB" stroke-width="9"/>
+  <line x1="54" y1="121" x2="116" y2="161" stroke="#64D5AB" stroke-width="9"/>
+  <line x1="142" y1="26" x2="142" y2="52" stroke="#64D5AB" stroke-width="9" stroke-linecap="square"/>
+  <line x1="131" y1="36" x2="153" y2="36" stroke="#64D5AB" stroke-width="9" stroke-linecap="square"/>
+  <polyline points="111,148 106,90 123,80 123,63 142,52 162,61 162,75 184,84" stroke="#64D5AB" stroke-width="10" stroke-linejoin="miter"/>
+  <circle cx="88" cy="172" r="9" stroke="#64D5AB" stroke-width="8" fill="none"/>
+  <circle cx="122" cy="153" r="11" stroke="#64D5AB" stroke-width="8" fill="none"/>
+  <path d="M72,186 C85,194 98,185 112,174 C126,164 139,169 148,184" stroke="#64D5AB" stroke-width="9" stroke-linecap="round"/>
+</svg>

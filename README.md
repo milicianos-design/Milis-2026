@@ -8,6 +8,7 @@ Pier Giorgio Frassati, Santa Catalina), con un foro y las Notas de Vanguardia pa
 | Parte | Tecnología | Dónde está |
 |---|---|---|
 | Páginas | HTML + Tailwind CSS + JavaScript | `*.html`, `js/`, `src/input.css` |
+| Campamento Nacional (`/Campamentobn/`) | React + TypeScript + Tailwind (propio) | `Campamentobn/` |
 | Compilación del frontend | Vite (Node) — solo en la compu, no en el servidor | `vite.config.js` |
 | API (cuentas, foro, notas, imágenes) | PHP 8.2+ sin framework | `api/` |
 | Base de datos | MySQL / MariaDB | `api/database/migrations/` |
@@ -18,6 +19,7 @@ Lo único externo son los videos de YouTube que se incrustan en posts y notas.
 
 ```
 ├── *.html                 páginas del sitio
+├── Campamentobn/          landing del Campamento Nacional (React); sus fotos y videos en public/Campamentobn/media
 ├── js/main.js             lógica de las páginas
 ├── js/api.js              cliente de la API (login, posts, notas…)
 ├── js/security.js         limpieza de lo que escriben los usuarios antes de mostrarlo
@@ -75,6 +77,7 @@ npm run db:stop   # apaga la base al terminar
 | `npm run package` | Compila y arma `build/milis-hostinger.zip` para subir |
 | `npm run deploy` | Compila y publica en Hostinger por SSH (datos en `.env.local`) |
 | `npm run icons` | Regenera la fuente de íconos después de agregar o quitar un ícono de Material Symbols |
+| `npm run typecheck` | Revisa los tipos de TypeScript de la página del campamento |
 
 ## Publicar en Hostinger
 
@@ -126,6 +129,15 @@ No toca `api/config.php` ni las imágenes de `uploads/`.
 
 Hostinger hace copias automáticas (la frecuencia depende del plan). Igual, antes de cada actualización
 importante exportá la base desde phpMyAdmin y descargá `public_html/uploads/`: son lo único que no está en este repositorio.
+
+## Postulaciones al Campamento Nacional
+
+El formulario de `/Campamentobn/` guarda cada postulación en la tabla `campamento_postulaciones`
+(antes iban a una planilla de Google). Para verlas, un **admin** logueado en el sitio abre:
+
+- `https://tudominio.com/api/campamento/postulaciones.csv` → descarga una planilla que abre en Excel o Google Sheets.
+
+La API limita los envíos (20 por hora desde una misma conexión) y descarta los de bots con un campo trampa.
 
 ## Seguridad
 
