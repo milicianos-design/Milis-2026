@@ -1,3 +1,5 @@
+import { escapeHtml, jsArg, safeUrl, sanitizeHtml } from './security.js';
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL; // Vercel inyectará esto en producción
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY; // Vercel inyectará esto en producción
 
@@ -102,7 +104,7 @@ const showToast = (message, type = 'info') => {
         </div>
         <div class="toast-content">
             <div class="toast-title text-${type === 'error' ? '[#960317]' : (type === 'success' ? 'green-500' : 'blue-500')}">${titles[type]}</div>
-            <div class="toast-message">${message}</div>
+            <div class="toast-message">${escapeHtml(message)}</div>
         </div>
     `;
 
@@ -346,13 +348,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Global Helper Assignments (Must be before loadPosts) ---
     window.openAuth = openAuth;
     window.getYouTubeEmbedUrl = (url) => {
-        if (!url) return null;
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        if (match && match[2].length === 11) {
-            return `https://www.youtube.com/embed/${match[2]}?rel=0&modestbranding=1&origin=${window.location.origin}`;
-        }
-        return null;
+        const id = getYouTubeID(url);
+        return id ? `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&origin=${window.location.origin}` : null;
     };
 
     // ─── POLL RENDERING (inline styles for guaranteed visibility) ───────────
@@ -370,15 +367,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const resultsTo = Array.isArray(pollData.show_results_to) ? pollData.show_results_to : [];
             const showResults = hasVoted || (user && resultsTo.includes(user.id));
 
-            let html = `<div id="poll-container-${post.id}" style="margin:16px 0;background:#f4f4f5;border-radius:16px;padding:20px;border:1px solid #e4e4e7;">
+            let html = `<div id="poll-container-${escapeHtml(post.id)}" style="margin:16px 0;background:#f4f4f5;border-radius:16px;padding:20px;border:1px solid #e4e4e7;">
                 <p style="margin:0 0 14px;font-size:13px;font-weight:800;color:#18181b;display:flex;align-items:center;gap:8px;">
                     <span class="material-symbols-outlined" style="font-size:18px;color:#960317;">poll</span>
-                    ${pollData.question || 'Encuesta'}
+                    ${escapeHtml(pollData.question || 'Encuesta')}
                 </p>
                 <div style="display:flex;flex-direction:column;gap:10px;">`;
 
             pollData.options.forEach((opt, index) => {
-                const optId = opt.id !== undefined ? opt.id : index;
+                // Se interpola sin comillas en onclick: solo se acepta un entero.
+                const optId = Number.isInteger(opt.id) ? opt.id : index;
                 const optVotes = Array.isArray(opt.votes) ? opt.votes.length : 0;
                 const percent = totalVotes > 0 ? Math.round((optVotes / totalVotes) * 100) : 0;
 
@@ -387,22 +385,22 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="poll-bar" style="position:absolute;left:0;top:0;height:100%;background:#960317;opacity:0.12;width:0%;transition:width 1s ease;" data-percent="${percent}"></div>
                         <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 16px;">
                             <div>
-                                <span style="font-size:12px;font-weight:700;color:#18181b;">${opt.text}</span>
+                                <span style="font-size:12px;font-weight:700;color:#18181b;">${escapeHtml(opt.text)}</span>
                                 <span style="display:block;font-size:10px;color:#71717a;">${optVotes} voto${optVotes !== 1 ? 's' : ''}</span>
                             </div>
                             <span style="font-size:13px;font-weight:800;color:#960317;">${percent}%</span>
                         </div>
                     </div>`;
                 } else {
-                    html += `<button onclick="votePoll('${post.id}', ${optId})" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border:1.5px solid #e4e4e7;border-radius:10px;cursor:pointer;font-family:inherit;transition:border-color 0.2s,background 0.2s;" onmouseover="this.style.borderColor='#960317';this.style.background='#fff1f0';" onmouseout="this.style.borderColor='#e4e4e7';this.style.background='#fff';">
-                        <span style="font-size:12px;font-weight:700;color:#18181b;">${opt.text}</span>
+                    html += `<button onclick="votePoll(${jsArg(post.id)}, ${optId})" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border:1.5px solid #e4e4e7;border-radius:10px;cursor:pointer;font-family:inherit;transition:border-color 0.2s,background 0.2s;" onmouseover="this.style.borderColor='#960317';this.style.background='#fff1f0';" onmouseout="this.style.borderColor='#e4e4e7';this.style.background='#fff';">
+                        <span style="font-size:12px;font-weight:700;color:#18181b;">${escapeHtml(opt.text)}</span>
                         <span class="material-symbols-outlined" style="font-size:16px;color:#d4d4d8;">add_circle</span>
                     </button>`;
                 }
             });
 
             if (!showResults) {
-                html += `<button onclick="viewPollResults('${post.id}')" style="width:100%;padding:8px;background:none;border:none;cursor:pointer;font-size:11px;font-weight:700;color:#a1a1aa;font-family:inherit;letter-spacing:0.05em;" onmouseover="this.style.color='#960317';" onmouseout="this.style.color='#a1a1aa';">Ver resultados</button>`;
+                html += `<button onclick="viewPollResults(${jsArg(post.id)})" style="width:100%;padding:8px;background:none;border:none;cursor:pointer;font-size:11px;font-weight:700;color:#a1a1aa;font-family:inherit;letter-spacing:0.05em;" onmouseover="this.style.color='#960317';" onmouseout="this.style.color='#a1a1aa';">Ver resultados</button>`;
             }
 
             if (totalVotes > 0) {
@@ -636,22 +634,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 const canDelete = user && (user.id === c.author_id || canModerate);
 
                 return `<div style="display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f4f4f5;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#960317;flex-shrink:0;">${initial}</div>
+                    <div style="width:32px;height:32px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#960317;flex-shrink:0;">${escapeHtml(initial)}</div>
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px;">
                             <div style="display:flex;align-items:baseline;gap:8px;">
-                                <span style="font-size:11px;font-weight:700;color:#18181b;">${authorName}</span>
+                                <span style="font-size:11px;font-weight:700;color:#18181b;">${escapeHtml(authorName)}</span>
                                 <span style="font-size:10px;color:#a1a1aa;">${timeAgo}</span>
                             </div>
-                            ${canDelete ? `<button onclick="window.deleteComment('${c.id}', '${postId}')" style="padding:4px;background:none;border:none;cursor:pointer;color:#ef4444;border-radius:4px;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1';" onmouseout="this.style.opacity='0.7';"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>` : ''}
+                            ${canDelete ? `<button onclick="window.deleteComment(${jsArg(c.id)}, ${jsArg(postId)})" style="padding:4px;background:none;border:none;cursor:pointer;color:#ef4444;border-radius:4px;opacity:0.7;transition:opacity 0.2s;" onmouseover="this.style.opacity='1';" onmouseout="this.style.opacity='0.7';"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>` : ''}
                         </div>
-                        <p style="margin:0;font-size:13px;color:#3f3f46;line-height:1.5;word-break:break-word;">${c.content}</p>
+                        <p style="margin:0;font-size:13px;color:#3f3f46;line-height:1.5;word-break:break-word;">${escapeHtml(c.content)}</p>
                     </div>
                 </div>`;
             }).join('');
         } catch (err) {
             console.error('loadComments error:', err);
-            list.innerHTML = `<p style="font-size:11px;color:#ef4444;text-align:center;padding:12px 0;">Error: ${err.message}</p>`;
+            list.innerHTML = `<p style="font-size:11px;color:#ef4444;text-align:center;padding:12px 0;">Error: ${escapeHtml(err.message)}</p>`;
             showToast('Error al cargar comentarios: ' + err.message, 'error');
         }
     };
@@ -764,7 +762,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (session) {
             const user = session.user;
-            const name = user.user_metadata.first_name || user.email.split('@')[0];
+            const name = escapeHtml(user.user_metadata.first_name || user.email.split('@')[0]);
             authContainers.forEach(container => {
                 container.innerHTML = `
                     <div class="flex items-center gap-4">
@@ -1269,6 +1267,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             postsFeed.innerHTML = data.map(post => {
+                const id = escapeHtml(post.id);
+                const idArg = jsArg(post.id);
                 const authorName = post.profiles ? `@${post.profiles.first_name}_${post.profiles.last_name}`.toLowerCase() : '@sin_nombre';
                 const date = new Date(post.created_at);
                 const timeAgo = formatTimeAgo(date);
@@ -1281,7 +1281,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (embedUrl) {
                         youtubeHtml = `
                             <div class="mb-4 rounded-2xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 aspect-video bg-zinc-900">
-                                <iframe class="w-full h-full" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                <iframe class="w-full h-full" src="${escapeHtml(embedUrl)}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                             </div>
                         `;
                     }
@@ -1292,54 +1292,55 @@ document.addEventListener("DOMContentLoaded", () => {
                     pollHtml = getPollHtml(post, user);
                 }
 
-                const voteCount = post.vote_count || 0;
+                const voteCount = Number(post.vote_count) || 0;
+                const imageUrl = safeUrl(post.image_url);
 
                 return `
                 <article style="background:#fff;border-radius:20px;border:1px solid #e4e4e7;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
                     <!-- Header -->
                     <div style="padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;">
                         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                            <span style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#960317;background:#fff1f0;padding:3px 10px;border-radius:20px;border:1px solid #fecaca;text-transform:uppercase;">m/${category}</span>
-                            <span style="font-size:11px;color:#a1a1aa;font-weight:600;">${authorName} · ${timeAgo}</span>
+                            <span style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#960317;background:#fff1f0;padding:3px 10px;border-radius:20px;border:1px solid #fecaca;text-transform:uppercase;">m/${escapeHtml(category)}</span>
+                            <span style="font-size:11px;color:#a1a1aa;font-weight:600;">${escapeHtml(authorName)} · ${timeAgo}</span>
                         </div>
-                        ${canDelete ? `<button onclick="deletePost('${post.id}', '${post.image_url || ''}')" title="Eliminar" style="padding:6px;background:none;border:none;cursor:pointer;color:#d4d4d8;border-radius:8px;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#ef4444';this.style.background='#fef2f2';" onmouseout="this.style.color='#d4d4d8';this.style.background='none';"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>` : ''}
+                        ${canDelete ? `<button onclick="deletePost(${idArg}, ${jsArg(post.image_url || '')})" title="Eliminar" style="padding:6px;background:none;border:none;cursor:pointer;color:#d4d4d8;border-radius:8px;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#ef4444';this.style.background='#fef2f2';" onmouseout="this.style.color='#d4d4d8';this.style.background='none';"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>` : ''}
                     </div>
 
                     <!-- Body -->
                     <div style="padding:16px 24px 20px;">
-                        <h3 style="margin:0 0 12px;font-size:20px;font-weight:800;color:#18181b;line-height:1.3;font-family:'Sora',sans-serif;">${post.title}</h3>
+                        <h3 style="margin:0 0 12px;font-size:20px;font-weight:800;color:#18181b;line-height:1.3;font-family:'Sora',sans-serif;">${escapeHtml(post.title)}</h3>
                         ${youtubeHtml}
-                        ${post.image_url ? `<div style="margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid #e4e4e7;"><img src="${post.image_url}" style="width:100%;height:auto;max-height:420px;object-fit:cover;display:block;"></div>` : ''}
-                        <div class="ql-editor" style="padding:0;font-size:14px;color:#3f3f46;line-height:1.7;margin-bottom:8px;">${post.content}</div>
+                        ${imageUrl ? `<div style="margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid #e4e4e7;"><img src="${imageUrl}" style="width:100%;height:auto;max-height:420px;object-fit:cover;display:block;"></div>` : ''}
+                        <div class="ql-editor" style="padding:0;font-size:14px;color:#3f3f46;line-height:1.7;margin-bottom:8px;">${sanitizeHtml(post.content)}</div>
                         ${pollHtml}
                     </div>
 
                     <!-- Footer Actions -->
                     <div style="padding:12px 24px 16px;border-top:1px solid #f4f4f5;display:flex;align-items:center;gap:16px;">
                         <!-- Upvote (toggle, 1 per user) -->
-                        <button type="button" id="like-btn-${post.id}" onclick="event.preventDefault();window.upvotePost('${post.id}');" title="Me gusta" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;color:#71717a;" onmouseover="this.style.background='#fff1f0';" onmouseout="this.style.background='none';">
+                        <button type="button" id="like-btn-${id}" onclick="event.preventDefault();window.upvotePost(${idArg});" title="Me gusta" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;color:#71717a;" onmouseover="this.style.background='#fff1f0';" onmouseout="this.style.background='none';">
                             <span class="material-symbols-outlined" style="font-size:18px;color:inherit;">favorite</span>
-                            <span id="vote-count-${post.id}" style="font-size:12px;font-weight:700;">${voteCount}</span>
+                            <span id="vote-count-${id}" style="font-size:12px;font-weight:700;">${voteCount}</span>
                         </button>
 
                         <!-- Comments toggle -->
-                        <button type="button" onclick="window.toggleComments('${post.id}')" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;" onmouseover="this.style.background='#f4f4f5';" onmouseout="this.style.background='none';">
+                        <button type="button" onclick="window.toggleComments(${idArg})" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;padding:6px 10px;border-radius:10px;transition:background 0.2s;" onmouseover="this.style.background='#f4f4f5';" onmouseout="this.style.background='none';">
                             <span class="material-symbols-outlined" style="font-size:18px;color:#71717a;">chat_bubble</span>
                             <span style="font-size:12px;font-weight:600;color:#71717a;">Comentar</span>
-                            <span id="comment-count-${post.id}" style="font-size:11px;font-weight:700;color:#fff;background:#71717a;padding:1px 7px;border-radius:20px;">0</span>
+                            <span id="comment-count-${id}" style="font-size:11px;font-weight:700;color:#fff;background:#71717a;padding:1px 7px;border-radius:20px;">0</span>
                         </button>
                     </div>
 
                     <!-- Comments Section (hidden by default) -->
-                    <div id="comments-section-${post.id}" style="display:none;border-top:1px solid #f4f4f5;padding:16px 24px 20px;background:#fafafa;">
+                    <div id="comments-section-${id}" style="display:none;border-top:1px solid #f4f4f5;padding:16px 24px 20px;background:#fafafa;">
                         <!-- Comment list -->
-                        <div id="comments-list-${post.id}" style="max-height:320px;overflow-y:auto;margin-bottom:16px;">
+                        <div id="comments-list-${id}" style="max-height:320px;overflow-y:auto;margin-bottom:16px;">
                             <p style="font-size:11px;color:#a1a1aa;text-align:center;padding:12px 0;">Cargando...</p>
                         </div>
                         <!-- Comment input -->
                         <div style="display:flex;gap:10px;align-items:center;background:#fff;border:1.5px solid #e4e4e7;border-radius:14px;padding:8px 12px;">
-                            <input type="text" id="comment-input-${post.id}" placeholder="Escribe un comentario..." style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;background:transparent;color:#18181b;" onfocus="this.parentElement.style.borderColor='#960317';" onblur="this.parentElement.style.borderColor='#e4e4e7';" onkeydown="if(event.key==='Enter'){event.preventDefault();window.postComment('${post.id}');}">
-                            <button type="button" id="comment-btn-${post.id}" onclick="event.preventDefault();event.stopPropagation();window.postComment('${post.id}');" style="width:36px;height:36px;background:#960317;color:#fff;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">
+                            <input type="text" id="comment-input-${id}" placeholder="Escribe un comentario..." style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;background:transparent;color:#18181b;" onfocus="this.parentElement.style.borderColor='#960317';" onblur="this.parentElement.style.borderColor='#e4e4e7';" onkeydown="if(event.key==='Enter'){event.preventDefault();window.postComment(${idArg});}">
+                            <button type="button" id="comment-btn-${id}" onclick="event.preventDefault();event.stopPropagation();window.postComment(${idArg});" style="width:36px;height:36px;background:#960317;color:#fff;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">
                                 <span class="material-symbols-outlined" style="font-size:16px;">send</span>
                             </button>
                         </div>
@@ -1385,7 +1386,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error('Error loading posts:', err);
-            if (postsFeed) postsFeed.innerHTML = `<p style="color:#ef4444;text-align:center;padding:40px 0;font-weight:600;">Error al sincronizar el feed.<br><span style="font-size:12px;font-weight:400;">${err.message}</span></p>`;
+            if (postsFeed) postsFeed.innerHTML = `<p style="color:#ef4444;text-align:center;padding:40px 0;font-weight:600;">Error al sincronizar el feed.<br><span style="font-size:12px;font-weight:400;">${escapeHtml(err.message)}</span></p>`;
         }
     }
 
@@ -1559,8 +1560,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function getYouTubeID(url) {
         if (!url) return null;
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
+        const match = String(url).match(regExp);
+        // Un ID de YouTube son exactamente 11 caracteres [A-Za-z0-9_-]; nada de comillas ni espacios.
+        return (match && /^[\w-]{11}$/.test(match[2])) ? match[2] : null;
     }
 
 
@@ -1632,24 +1634,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         notesFeed.innerHTML = '';
         filtered.forEach((note, index) => {
-            const authorName = note.profiles ? `${note.profiles.first_name} ${note.profiles.last_name}` : 'Miliciano';
+            const authorName = escapeHtml(note.profiles ? `${note.profiles.first_name} ${note.profiles.last_name}` : 'Miliciano');
+            const authorInitial = escapeHtml((note.profiles?.first_name || 'M').charAt(0));
+            const type = escapeHtml(note.type);
+            const title = escapeHtml(note.title);
             // Use metadata reading time or fallback to 1 min since we don't have content here
-            const readTime = note.reading_time_min || 1;
+            const readTime = Number(note.reading_time_min) || 1;
             const card = document.createElement('div');
 
             if (index === 0 && !query) {
                 card.className = "group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-xl h-72 cursor-pointer transition-all hover:-translate-y-1 mb-8 border border-white/10";
                 card.innerHTML = `
-                    <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60" src="${note.image_url || 'https://images.unsplash.com/photo-1455390582262-044cdead277a'}" />
+                    <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60" src="${safeUrl(note.image_url) || 'https://images.unsplash.com/photo-1455390582262-044cdead277a'}" />
                     <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 p-6 z-20 w-full">
                         <div class="flex items-center gap-3 mb-3">
-                            <span class="px-2.5 py-1 bg-[#960317] text-white text-[9px] font-black rounded-full backdrop-blur-md uppercase tracking-wider">${note.type}</span>
+                            <span class="px-2.5 py-1 bg-[#960317] text-white text-[9px] font-black rounded-full backdrop-blur-md uppercase tracking-wider">${type}</span>
                             <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1">
                                 <span class="material-symbols-outlined text-xs">schedule</span> ${readTime} min lectura
                             </span>
                         </div>
-                        <h3 class="text-xl font-bold text-white leading-tight font-['Sora'] group-hover:text-red-400 transition-colors">${note.title}</h3>
+                        <h3 class="text-xl font-bold text-white leading-tight font-['Sora'] group-hover:text-red-400 transition-colors">${title}</h3>
                         <p class="text-[10px] text-zinc-400 mt-2 font-bold uppercase tracking-widest">Por ${authorName}</p>
                     </div>
                 `;
@@ -1657,13 +1662,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.className = "bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm group hover:shadow-lg hover:border-[#960317]/20 transition-all cursor-pointer mb-4";
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-[9px] font-black text-[#960317] tracking-[0.2em] uppercase">${note.type}</span>
+                        <span class="text-[9px] font-black text-[#960317] tracking-[0.2em] uppercase">${type}</span>
                         <span class="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">${readTime} min</span>
                     </div>
-                    <h4 class="text-sm font-bold mb-4 leading-snug text-zinc-900 font-['Sora'] group-hover:text-[#960317] transition-colors">${note.title}</h4>
+                    <h4 class="text-sm font-bold mb-4 leading-snug text-zinc-900 font-['Sora'] group-hover:text-[#960317] transition-colors">${title}</h4>
                     <div class="flex items-center gap-3">
                         <div class="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center text-[8px] font-bold text-zinc-500 border border-zinc-200">
-                            ${authorName[0]}
+                            ${authorInitial}
                         </div>
                         <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Por ${authorName}</span>
                     </div>
@@ -1760,18 +1765,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else if (typeof marked !== 'undefined') {
                         htmlContent = marked.parse(note.content || '');
                     } else {
-                        htmlContent = (note.content || '').split('\n').map(p => p.trim() ? `<p class="mb-6">${p}</p>` : '').join('');
+                        htmlContent = (note.content || '').split('\n').map(p => p.trim() ? `<p class="mb-6">${escapeHtml(p)}</p>` : '').join('');
                     }
                 }
-                contentArea.innerHTML = htmlContent;
+                contentArea.innerHTML = sanitizeHtml(htmlContent);
 
                 // Keywords
                 if (note.keywords && note.keywords.length > 0) {
-                    contentArea.innerHTML += `
+                    contentArea.insertAdjacentHTML('beforeend', `
                         <div class="flex flex-wrap gap-2 mt-12 pt-8 border-t border-zinc-100">
-                            ${note.keywords.map(k => `<span class="px-3 py-1 bg-zinc-50 text-zinc-400 text-[10px] font-bold rounded-lg uppercase tracking-wider">#${k.trim()}</span>`).join('')}
+                            ${note.keywords.map(k => `<span class="px-3 py-1 bg-zinc-50 text-zinc-400 text-[10px] font-bold rounded-lg uppercase tracking-wider">#${escapeHtml(String(k).trim())}</span>`).join('')}
                         </div>
-                    `;
+                    `);
                 }
 
                 // Suggestions Engine
@@ -1783,17 +1788,24 @@ document.addEventListener("DOMContentLoaded", () => {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     `;
 
-                    suggestions.forEach(s => {
+                    suggestions.forEach((s, i) => {
                         suggestionsHtml += `
-                            <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-sm cursor-pointer hover:border-[#960317]/30 transition-all group" onclick="closeNoteReader(); setTimeout(() => viewNote(${JSON.stringify(s).replace(/"/g, '&quot;')}), 300)">
-                                <span class="text-[8px] font-black text-[#960317] tracking-widest uppercase mb-2 block">${s.type}</span>
-                                <h4 class="text-sm font-bold font-['Sora'] group-hover:text-[#960317] transition-colors leading-tight">${s.title}</h4>
+                            <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-sm cursor-pointer hover:border-[#960317]/30 transition-all group" data-suggestion-index="${i}">
+                                <span class="text-[8px] font-black text-[#960317] tracking-widest uppercase mb-2 block">${escapeHtml(s.type)}</span>
+                                <h4 class="text-sm font-bold font-['Sora'] group-hover:text-[#960317] transition-colors leading-tight">${escapeHtml(s.title)}</h4>
                             </div>
                         `;
                     });
 
                     suggestionsHtml += `</div></div>`;
-                    contentArea.innerHTML += suggestionsHtml;
+                    contentArea.insertAdjacentHTML('beforeend', suggestionsHtml);
+                    contentArea.querySelectorAll('[data-suggestion-index]').forEach(el => {
+                        const suggestion = suggestions[Number(el.dataset.suggestionIndex)];
+                        el.addEventListener('click', () => {
+                            closeNoteReader();
+                            setTimeout(() => viewNote(suggestion), 300);
+                        });
+                    });
                 }
             }
 
@@ -2093,8 +2105,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const chip = document.createElement('div');
             chip.className = 'flex items-center gap-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2 py-1 rounded-lg text-xs font-bold text-zinc-700 dark:text-zinc-300 shadow-sm';
             chip.innerHTML = `
-                <span>${tag}</span>
-                <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-[#960317] transition-colors ml-1 remove-tag" data-tag="${tag}">close</span>
+                <span>${escapeHtml(tag)}</span>
+                <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-[#960317] transition-colors ml-1 remove-tag" data-tag="${escapeHtml(tag)}">close</span>
             `;
             keywordsContainer.appendChild(chip);
         });
@@ -2260,10 +2272,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (embedUrl) {
                 const extractThumb = document.getElementById('extract-thumbnail');
                 if (extractThumb && extractThumb.checked) {
-                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                    const match = rawUrl.match(regExp);
-                    if (match && match[2].length === 11) {
-                        extractedThumbnailUrl = `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg`;
+                    const videoId = getYouTubeID(rawUrl);
+                    if (videoId) {
+                        extractedThumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
                         const dropzone = document.getElementById('note-image-dropzone');
                         if (dropzone) {
                             dropzone.style.backgroundImage = `url(${extractedThumbnailUrl})`;
