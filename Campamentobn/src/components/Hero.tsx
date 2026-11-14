@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Play, ArrowRight, ArrowDown } from 'lucide-react';
 import { CAMPAMENTO_CONFIG, METRICAS_HERO } from '../data/campamentoData';
 
@@ -13,28 +13,6 @@ export const Hero: React.FC = () => {
       videoRef.current.play().catch(() => {});
     }
   };
-
-  // Autoplay automático luego de 3 segundos si el usuario no le dio play antes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsPlayingInline((alreadyPlaying) => {
-        if (!alreadyPlaying) {
-          if (videoRef.current) {
-            videoRef.current.play().catch(() => {
-              if (videoRef.current) {
-                videoRef.current.muted = true;
-                videoRef.current.play().catch(() => {});
-              }
-            });
-          }
-          return true;
-        }
-        return alreadyPlaying;
-      });
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <section className="relative min-h-screen bg-pbc-deep bg-grain overflow-hidden flex flex-col justify-center pb-12 md:pb-16 pt-20 md:pt-28" id="hero">
@@ -100,14 +78,14 @@ export const Hero: React.FC = () => {
           {/* Bloque B: Video Oficial Integrado (Derecha en PC, 2do en Mobile) */}
           <div className="lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:row-span-3 w-full mx-auto mb-6 lg:mb-0">
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-[#121917] border-2 border-pbc/40 shadow-[0_0_45px_rgba(100,213,171,0.22)] transition-all duration-300 hover:border-pbc">
-              {/* Reproductor siempre montado; preload="metadata" para no bajar el video entero si nadie lo mira */}
+              {/* El video no arranca solo: espera a que la persona toque reproducir. preload="none": no se baja nada hasta ese momento */}
               <video
                 ref={videoRef}
                 src="/Campamentobn/media/video-inicial.mp4"
                 poster="/Campamentobn/media/portada-video-oficial.webp"
                 controls={isPlayingInline}
                 playsInline
-                preload="metadata"
+                preload="none"
                 className="w-full h-full object-cover sm:object-contain bg-black"
               />
 
