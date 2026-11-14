@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { useBodyScrollLock } from '../lib/useBodyScrollLock';
 import { Waves, Flame, Landmark, ArrowRight, ChevronLeft, ChevronRight, Camera, Maximize2, X, Play, MapPin, ExternalLink, Instagram } from 'lucide-react';
 import { EXPERIENCIAS_MENDOZA, FOTOS_PENA, FOTOS_ACCION } from '../data/campamentoData';
 
@@ -11,6 +13,8 @@ export const ExperienciaMendoza: React.FC = () => {
 
   // Lightbox activo ('pena' | 'accion' | null)
   const [lightboxGallery, setLightboxGallery] = useState<'pena' | 'accion' | null>(null);
+  // Con la galería abierta, la página de fondo no se mueve.
+  useBodyScrollLock(lightboxGallery !== null);
 
   // Estado para el reproductor de video de Rafting Betancourt
   const [raftingPlaying, setRaftingPlaying] = useState(false);
@@ -549,7 +553,7 @@ export const ExperienciaMendoza: React.FC = () => {
           : 'bg-[#121917] border-pbc/40 text-[#81f2c6]';
         const galleryTitle = isPena ? 'PEÑA GAUCHA & FOGÓN' : 'ACCIÓN EN MENDOZA · MISIÓN';
 
-        return (
+        return createPortal(
           <div 
             className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-fadeIn select-none"
             onClick={() => setLightboxGallery(null)}
@@ -658,7 +662,7 @@ export const ExperienciaMendoza: React.FC = () => {
               </div>
             </div>
           </div>
-        );
+        , document.body);
       })()}
     </section>
   );

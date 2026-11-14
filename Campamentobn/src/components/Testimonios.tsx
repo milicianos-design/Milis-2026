@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { useBodyScrollLock } from '../lib/useBodyScrollLock';
 import { Play, Pause, Volume2, Zap, ChevronLeft, ChevronRight, Video, X, Maximize2, Camera } from 'lucide-react';
 
 interface TestimoniosProps {
@@ -199,6 +201,9 @@ export const Testimonios: React.FC<TestimoniosProps> = ({ audioSrc = "/Campament
   // Estado del Video Activo a Pantalla Completa
   const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
   const [videoProgress, setVideoProgress] = useState(0);
+
+  // Con el video o la galería abiertos, la página de fondo no se mueve.
+  useBodyScrollLock(polaroidLightboxOpen || activeVideo !== null);
 
   // Control de Audio Real del Fogón
   const toggleAudio = () => {
@@ -500,7 +505,7 @@ export const Testimonios: React.FC<TestimoniosProps> = ({ audioSrc = "/Campament
         {/* ======================================================== */}
         {/* MODAL LIGHTBOX FULLSCREEN PARA FOTOS POLAROID            */}
         {/* ======================================================== */}
-        {polaroidLightboxOpen && (
+        {polaroidLightboxOpen && createPortal(
           <div 
             className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[9999] flex flex-col justify-between p-3 sm:p-6 animate-fadeIn select-none"
             onClick={() => setPolaroidLightboxOpen(false)}
@@ -613,13 +618,13 @@ export const Testimonios: React.FC<TestimoniosProps> = ({ audioSrc = "/Campament
               </div>
             </div>
           </div>
-        )}
+        , document.body)}
 
         {/* ======================================================== */}
         {/* MODAL FULLSCREEN A PANTALLA COMPLETA VERTICAL 9:16       */}
         {/* ======================================================== */}
-        {activeVideo && (
-          <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex flex-col justify-between p-4 sm:p-6 animate-fadeIn">
+        {activeVideo && createPortal(
+          <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[9999] flex flex-col justify-between p-4 sm:p-6 animate-fadeIn">
             {/* Barra superior de Stories / Reels */}
             <div className="w-full space-y-2 max-w-sm mx-auto">
               {/* Barra de progreso animada */}
@@ -679,7 +684,7 @@ export const Testimonios: React.FC<TestimoniosProps> = ({ audioSrc = "/Campament
               </button>
             </div>
           </div>
-        )}
+        , document.body)}
 
       </div>
     </section>
