@@ -6,7 +6,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "icons": "node scripts/update-icons.mjs"
+    "icons": "node scripts/update-icons.mjs",
+    "db": "node scripts/dev-db.mjs start",
+    "db:stop": "node scripts/dev-db.mjs stop",
+    "test": "composer --working-dir=api test"
   },
   "devDependencies": {
     "autoprefixer": "^10.6.2",

@@ -1,0 +1,19 @@
+# Carpeta de imágenes subidas por los usuarios. La API solo guarda acá archivos .webp con nombre
+# aleatorio; igual, por las dudas, nada de esta carpeta se ejecuta ni se lista.
+Options -Indexes -ExecCGI
+RemoveHandler .php .phtml .phar .cgi .pl .py
+RemoveType .php .phtml .phar
+
+<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh|html?|svg|js)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

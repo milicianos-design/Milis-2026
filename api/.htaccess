@@ -1,0 +1,9 @@
+# Todos los pedidos a /api/* los atiende index.php. Ningún otro archivo de esta carpeta
+# (código, dependencias, migraciones, configuración) se puede pedir directamente desde la web.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^index\.php$ - [L]
+    RewriteRule ^ index.php [L]
+</IfModule>

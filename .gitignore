@@ -1,6 +1,7 @@
 # Dependencias (lo más pesado, nunca se sube)
 node_modules/
 .pnpm-store/
+api/vendor/
 
 # Construcción y producción
 dist/
@@ -14,6 +15,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+api/config.php
 
 # Logs y errores
 npm-debug.log*
@@ -28,3 +30,7 @@ Thumbs.db
 
 # Archivos temporales de IA y pruebas
 scratch/
+
+# Entorno local de desarrollo (base de datos, emails y archivos subidos de prueba)
+.dev/
+.phpunit.cache/
