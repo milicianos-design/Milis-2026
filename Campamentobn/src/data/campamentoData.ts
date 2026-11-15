@@ -29,10 +29,10 @@ export const CAMPAMENTO_CONFIG: CampamentoConfig = {
 };
 
 export const METRICAS_HERO = [
-  { valor: "+250", label: "Jóvenes del País", color: "text-pbc" },
-  { valor: "7 Días", label: "Vivencias Unidas", color: "text-white" },
-  { valor: "Disertantes", label: "De Alto Nivel", color: "text-pbc" },
-  { valor: "Vocación", label: "Descubrimiento", color: "text-white" },
+  { valor: "+250", label: "Jóvenes del País", color: "text-acento" },
+  { valor: "7 Días", label: "Vivencias Unidas", color: "text-tinta" },
+  { valor: "Disertantes", label: "De Alto Nivel", color: "text-acento" },
+  { valor: "Vocación", label: "Descubrimiento", color: "text-tinta" },
 ];
 
 export const MARQUEE_ITEMS = [

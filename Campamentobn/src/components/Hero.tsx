@@ -15,7 +15,7 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-screen bg-pbc-deep bg-grain overflow-hidden flex flex-col justify-center pb-12 md:pb-16 pt-20 md:pt-28" id="hero">
+    <section className="relative min-h-screen bg-fondo bg-grain overflow-hidden flex flex-col justify-center pb-12 md:pb-16 pt-20 md:pt-28" id="hero">
       {/* Motion Watermarks de fondo */}
       <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-full max-w-7xl flex justify-around pointer-events-none select-none opacity-10 animate-badge-float">
         <span className="font-coolvetica text-[90px] md:text-[150px] lg:text-[190px] text-pbc tracking-tighter motion-watermark">MDZ</span>
@@ -31,7 +31,7 @@ export const Hero: React.FC = () => {
           {/* Bloque A: Badge + Título + Subtítulo */}
           <div className="lg:col-span-6 lg:col-start-1 lg:row-start-1 flex flex-col items-center lg:items-start text-center lg:text-left">
             {/* Badge superior oficial con fechas */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#121917] border-2 border-pbc/40 text-pbc font-mono text-[10.5px] md:text-xs uppercase tracking-wider mb-3 md:mb-4 shadow-[0_0_15px_rgba(100,213,171,0.25)] animate-badge-float">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-superficie border-2 border-pbc/40 text-acento font-mono text-[10.5px] md:text-xs uppercase tracking-wider mb-3 md:mb-4 shadow-[0_0_15px_rgba(100,213,171,0.25)] animate-badge-float">
               <span className="w-2 h-2 rounded-full bg-pbc animate-ping"></span>
               <span className="font-bold">{CAMPAMENTO_CONFIG.fechas.toUpperCase()} · MENDOZA</span>
             </div>
@@ -40,9 +40,9 @@ export const Hero: React.FC = () => {
             <div className="mb-5 lg:mb-2 inline-flex flex-col items-center lg:items-start max-w-full">
               <h1
                 aria-label="PROTAGONISTAS DEL BIEN COMÚN"
-                className="font-coolvetica text-[35px] min-[360px]:text-[40px] min-[400px]:text-[44px] sm:text-[51px] md:text-[56px] lg:text-[54px] xl:text-[62px] uppercase leading-[0.94] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]"
+                className="font-coolvetica text-[35px] min-[360px]:text-[40px] min-[400px]:text-[44px] sm:text-[51px] md:text-[56px] lg:text-[54px] xl:text-[62px] uppercase leading-[0.94] tracking-tight dark:drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]"
               >
-                <span aria-hidden="true" className="block text-white whitespace-nowrap">
+                <span aria-hidden="true" className="block text-tinta whitespace-nowrap">
                   {"PROTAGONISTAS".split("").map((ch, i) => (
                     <span key={`l1-${i}`} className="hero-char-wrap">
                       <span
@@ -54,7 +54,7 @@ export const Hero: React.FC = () => {
                     </span>
                   ))}
                 </span>
-                <span aria-hidden="true" className="block text-pbc mt-1 whitespace-nowrap">
+                <span aria-hidden="true" className="block text-acento mt-1 whitespace-nowrap">
                   {"DEL BIEN COMÚN".split("").map((ch, i) => (
                     <span key={`l2-${i}`} className="hero-char-wrap">
                       <span
@@ -69,7 +69,7 @@ export const Hero: React.FC = () => {
               </h1>
 
               {/* Frase más chica y alineada */}
-              <p className="w-full font-sans text-[9.5px] min-[360px]:text-[10.5px] sm:text-[12px] md:text-sm text-gray-300 tracking-[0.015em] leading-snug mt-2 font-medium whitespace-nowrap hero-subtitle-in">
+              <p className="w-full font-sans text-[9.5px] min-[360px]:text-[10.5px] sm:text-[12px] md:text-sm text-tinta-3 tracking-[0.015em] leading-snug mt-2 font-medium whitespace-nowrap hero-subtitle-in">
                 Una experiencia inolvidable para jóvenes universitarios
               </p>
             </div>
@@ -77,7 +77,7 @@ export const Hero: React.FC = () => {
 
           {/* Bloque B: Video Oficial Integrado (Derecha en PC, 2do en Mobile) */}
           <div className="lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:row-span-3 w-full mx-auto mb-6 lg:mb-0">
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-[#121917] border-2 border-pbc/40 shadow-[0_0_45px_rgba(100,213,171,0.22)] transition-all duration-300 hover:border-pbc">
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-superficie border-2 border-pbc/40 shadow-[0_0_45px_rgba(100,213,171,0.22)] transition-all duration-300 hover:border-pbc">
               {/* El video no arranca solo: espera a que la persona toque reproducir. preload="none": no se baja nada hasta ese momento */}
               <video
                 ref={videoRef}
@@ -151,25 +151,25 @@ export const Hero: React.FC = () => {
 
               <a 
                 href="#que-vas-a-vivir"
-                className="w-full sm:flex-1 min-h-[46px] md:min-h-[52px] py-3 px-5 rounded-xl bg-pbc-card text-gray-200 border border-pbc/40 font-sans font-semibold text-xs md:text-sm tracking-wide flex items-center justify-center gap-2 active:scale-95 hover:bg-pbc/15 hover:border-pbc transition-all duration-200"
+                className="w-full sm:flex-1 min-h-[46px] md:min-h-[52px] py-3 px-5 rounded-xl bg-tarjeta text-tinta-2 border border-pbc/40 font-sans font-semibold text-xs md:text-sm tracking-wide flex items-center justify-center gap-2 active:scale-95 hover:bg-pbc/15 hover:border-pbc transition-all duration-200"
               >
                 <span>Ver cómo es el campamento</span>
-                <ArrowDown className="w-3.5 h-3.5 text-pbc animate-bounce" />
+                <ArrowDown className="w-3.5 h-3.5 text-acento animate-bounce" />
               </a>
             </div>
 
-            <div className="inline-flex items-center justify-center lg:justify-start gap-1.5 text-[11px] font-mono text-gray-400 mt-0.5">
+            <div className="inline-flex items-center justify-center lg:justify-start gap-1.5 text-[11px] font-mono text-tinta-4 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-pbc animate-pulse"></span>
               <span>Cupos limitados por delegación y carrera</span>
             </div>
           </div>
 
           {/* Bloque D: Párrafo descriptivo institucional */}
-          <div className="lg:col-span-6 lg:col-start-1 lg:row-start-2 text-gray-300 font-sans text-xs sm:text-sm md:text-[15px] leading-relaxed text-center lg:text-left mb-6 lg:mb-2 text-pretty max-w-sm md:max-w-lg mx-auto lg:mx-0 space-y-2">
+          <div className="lg:col-span-6 lg:col-start-1 lg:row-start-2 text-tinta-3 font-sans text-xs sm:text-sm md:text-[15px] leading-relaxed text-center lg:text-left mb-6 lg:mb-2 text-pretty max-w-sm md:max-w-lg mx-auto lg:mx-0 space-y-2">
             <p>
               Un campamento de formación, actividades recreativas y encuentro con Jesús con más de 250 jóvenes universitarios de todo el país.
             </p>
-            <p className="text-pbc font-medium">
+            <p className="text-acento font-medium">
               7 días para profundizar en tu vocación repensando la Patria a la luz de la DSI.
             </p>
           </div>
@@ -180,10 +180,10 @@ export const Hero: React.FC = () => {
           {METRICAS_HERO.map((m, idx) => (
             <div 
               key={idx}
-              className="metric-card-glow p-3 md:p-5 rounded-xl bg-pbc-card border border-pbc/30 text-center transition-all duration-300 hover:bg-[#1a2622] hover:-translate-y-0.5"
+              className="metric-card-glow p-3 md:p-5 rounded-xl bg-tarjeta border border-pbc/30 text-center transition-all duration-300 hover:bg-pbc-soft dark:hover:bg-[#1a2622] hover:-translate-y-0.5"
             >
               <span className={`block font-coolvetica text-2xl md:text-3xl lg:text-4xl ${m.color}`}>{m.valor}</span>
-              <span className="font-sans text-[10px] md:text-xs uppercase font-bold text-gray-400 tracking-wider block mt-0.5 md:mt-1">
+              <span className="font-sans text-[10px] md:text-xs uppercase font-bold text-tinta-4 tracking-wider block mt-0.5 md:mt-1">
                 {m.label}
               </span>
             </div>

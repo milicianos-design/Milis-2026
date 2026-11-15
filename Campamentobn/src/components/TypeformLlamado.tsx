@@ -125,7 +125,7 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
   };
 
   return (
-    <section className="py-16 md:py-24 bg-pbc-deep bg-grain text-white relative overflow-hidden border-t-2 border-pbc/20" id="llamado-final">
+    <section className="py-16 md:py-24 bg-fondo bg-grain text-tinta relative overflow-hidden border-t-2 border-pbc/20" id="llamado-final">
       {/* Watermarks de Fondo */}
       <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-full max-w-7xl flex justify-between pointer-events-none select-none opacity-10 animate-badge-float">
         <span className="font-coolvetica text-[120px] md:text-[200px] text-pbc tracking-tighter motion-watermark">
@@ -138,33 +138,33 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
 
       <div className="relative z-10 max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-4 md:px-8 text-center">
         {/* Cabecera del Bloque */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pbc-card border border-pbc/30 text-pbc font-mono text-[10px] md:text-xs uppercase tracking-[0.18em] font-bold mb-2.5 md:mb-3 shadow-sm">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tarjeta border border-pbc/30 text-acento font-mono text-[10px] md:text-xs uppercase tracking-[0.18em] font-bold mb-2.5 md:mb-3 shadow-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-pbc animate-pulse"></span>
           <span>BLOQUE 5: EL LLAMADO FINAL</span>
         </div>
 
-        <h2 className="font-coolvetica text-[24px] sm:text-3xl md:text-4xl lg:text-[42px] tracking-tight text-white uppercase leading-[1.12] mb-2 md:mb-3 drop-shadow-2xl text-balance">
+        <h2 className="font-coolvetica text-[24px] sm:text-3xl md:text-4xl lg:text-[42px] tracking-tight text-tinta uppercase leading-[1.12] mb-2 md:mb-3 dark:drop-shadow-2xl text-balance">
           ¿QUÉ PARTE DE LA MURALLA TE TOCA RECONSTRUIR A VOS?
         </h2>
 
-        <p className="font-sans text-gray-300 text-xs sm:text-sm md:text-base max-w-sm md:max-w-lg mx-auto leading-relaxed mb-6 md:mb-10 text-pretty">
+        <p className="font-sans text-tinta-3 text-xs sm:text-sm md:text-base max-w-sm md:max-w-lg mx-auto leading-relaxed mb-6 md:mb-10 text-pretty">
           La historia no la cambian los espectadores resignados. Da un paso al frente y postulá tu lugar en Mendoza 2027.
         </p>
 
         {/* CONTENEDOR TIPO TYPEFORM NATIVO */}
-        <div className="p-5 sm:p-6 md:p-8 lg:p-10 rounded-2xl bg-pbc-card border-2 border-pbc/30 shadow-glow-pbc text-left relative overflow-hidden">
+        <div className="p-5 sm:p-6 md:p-8 lg:p-10 rounded-2xl bg-tarjeta border-2 border-pbc/30 shadow-glow-pbc text-left relative overflow-hidden">
           
           {!isCompleted ? (
             <div>
               {/* Barra de Progreso Tipo Typeform */}
               <div className="mb-5">
-                <div className="flex items-center justify-between text-[11px] font-mono text-gray-400 mb-1.5">
-                  <span className="text-pbc font-bold uppercase tracking-wider">
+                <div className="flex items-center justify-between text-[11px] font-mono text-tinta-4 mb-1.5">
+                  <span className="text-acento font-bold uppercase tracking-wider">
                     Paso {currentStep + 1} de {TYPEFORM_QUESTIONS.length}
                   </span>
                   <span>{progressPercent}% completado</span>
                 </div>
-                <div className="w-full h-1.5 bg-pbc-carbon rounded-full overflow-hidden border border-white/10">
+                <div className="w-full h-1.5 bg-hundido rounded-full overflow-hidden border border-linea/10">
                   <div 
                     className="h-full bg-gradient-to-r from-pbc-dark via-pbc to-pbc-light transition-all duration-300 ease-out"
                     style={{ width: `${progressPercent}%` }}
@@ -175,19 +175,19 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
               {/* Pregunta Activa */}
               <div className="space-y-3 min-h-[190px] flex flex-col justify-center">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-md bg-pbc/20 border border-pbc/40 text-pbc font-mono text-xs font-bold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-md bg-pbc/20 border border-pbc/40 text-acento font-mono text-xs font-bold flex items-center justify-center">
                     {currentQ.numero}
                   </span>
-                  <span className="font-mono text-[10px] text-pbc uppercase tracking-wider font-semibold">
+                  <span className="font-mono text-[10px] text-acento uppercase tracking-wider font-semibold">
                     {currentQ.requerido ? 'Pregunta Obligatoria' : 'Opcional'}
                   </span>
                 </div>
 
-                <h3 className="font-coolvetica text-xl sm:text-2xl md:text-3xl uppercase text-white leading-tight text-balance">
+                <h3 className="font-coolvetica text-xl sm:text-2xl md:text-3xl uppercase text-tinta leading-tight text-balance">
                   {currentQ.pregunta}
                 </h3>
 
-                <p className="font-sans text-xs md:text-sm text-gray-400 text-pretty">
+                <p className="font-sans text-xs md:text-sm text-tinta-4 text-pretty">
                   {currentQ.subtitulo}
                 </p>
 
@@ -210,7 +210,7 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
                       value={formData[currentQ.id] || ''}
                       onChange={(e) => handleInputChange(e.target.value)}
                       placeholder={currentQ.placeholder}
-                      className="input-micro-focus w-full px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl bg-pbc-carbon border border-pbc/30 text-white font-sans text-xs md:text-base placeholder:text-gray-500 focus:outline-none transition-all duration-200 resize-none"
+                      className="input-micro-focus w-full px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl bg-hundido border border-pbc/30 text-tinta font-sans text-xs md:text-base placeholder:text-tinta-5 focus:outline-none transition-all duration-200 resize-none"
                     />
                   ) : (
                     <input 
@@ -220,12 +220,12 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
                       onChange={(e) => handleInputChange(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder={currentQ.placeholder}
-                      className="input-micro-focus w-full min-h-[46px] md:min-h-[54px] px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl bg-pbc-carbon border border-pbc/30 text-white font-sans text-xs sm:text-sm md:text-base placeholder:text-gray-500 focus:outline-none transition-all duration-200"
+                      className="input-micro-focus w-full min-h-[46px] md:min-h-[54px] px-3.5 md:px-4 py-2.5 md:py-3 rounded-xl bg-hundido border border-pbc/30 text-tinta font-sans text-xs sm:text-sm md:text-base placeholder:text-tinta-5 focus:outline-none transition-all duration-200"
                     />
                   )}
 
                   {errorMsg && (
-                    <span className="block mt-1 text-[11px] font-mono text-red-400">
+                    <span className="block mt-1 text-[11px] font-mono text-red-600 dark:text-red-400">
                       {errorMsg}
                     </span>
                   )}
@@ -233,13 +233,13 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
               </div>
 
               {/* Botones de Navegación del Typeform */}
-              <div className="pt-4 mt-2 border-t border-white/10 flex items-center justify-between gap-3">
+              <div className="pt-4 mt-2 border-t border-linea/10 flex items-center justify-between gap-3">
                 <button 
                   type="button"
                   onClick={handlePrev}
                   disabled={currentStep === 0}
-                  className={`min-h-[44px] px-3.5 rounded-xl border border-white/15 font-mono text-xs uppercase flex items-center gap-1.5 transition-all ${
-                    currentStep === 0 ? 'opacity-30 cursor-not-allowed text-gray-500' : 'text-gray-300 hover:bg-white/10 active:scale-95 cursor-pointer'
+                  className={`min-h-[44px] px-3.5 rounded-xl border border-linea/15 font-mono text-xs uppercase flex items-center gap-1.5 transition-all ${
+                    currentStep === 0 ? 'opacity-30 cursor-not-allowed text-tinta-5' : 'text-tinta-3 hover:bg-linea/10 active:scale-95 cursor-pointer'
                   }`}
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
@@ -264,7 +264,7 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
               </div>
 
               <div className="mt-2 text-center">
-                <span className="font-mono text-[9px] text-gray-500">
+                <span className="font-mono text-[9px] text-tinta-5">
                   Presiona Enter ↵ para avanzar
                 </span>
               </div>
@@ -272,28 +272,28 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
           ) : (
             /* Pantalla de Éxito & Conexión Directa con WhatsApp */
             <div className="py-2 text-center space-y-4 animate-fadeIn">
-              <div className="w-14 h-14 rounded-full bg-pbc/20 border-2 border-pbc text-pbc mx-auto flex items-center justify-center shadow-glow-pbc">
+              <div className="w-14 h-14 rounded-full bg-pbc/20 border-2 border-pbc text-acento mx-auto flex items-center justify-center shadow-glow-pbc">
                 <Sparkles className="w-7 h-7" />
               </div>
 
               <div>
-                <span className="font-mono text-[10px] text-pbc font-bold uppercase tracking-widest block mb-1">
+                <span className="font-mono text-[10px] text-acento font-bold uppercase tracking-widest block mb-1">
                   ¡POSTULACIÓN REGISTRADA!
                 </span>
-                <h3 className="font-coolvetica text-2xl uppercase text-white leading-tight">
+                <h3 className="font-coolvetica text-2xl uppercase text-tinta leading-tight">
                   Bienvenido a la Muralla, {formData.nombre.split(' ')[0]}
                 </h3>
-                <p className="font-sans text-xs text-gray-300 mt-1 max-w-xs mx-auto text-pretty">
+                <p className="font-sans text-xs text-tinta-3 mt-1 max-w-xs mx-auto text-pretty">
                   Tus datos han quedado listos. Conectá ahora con la Guardia de Mendoza para confirmar tu delegación y congelar tu arancel.
                 </p>
               </div>
 
               {/* Ficha Resumen */}
-              <div className="bg-pbc-carbon p-3.5 rounded-xl border border-white/10 text-left font-mono text-[11px] space-y-1.5 text-gray-300">
-                <div><span className="text-gray-500">Nombre:</span> <span className="text-white font-bold">{formData.nombre}</span></div>
-                <div><span className="text-gray-500">Ciudad/Ruca:</span> <span className="text-pbc font-semibold">{formData.ciudad}</span></div>
-                <div><span className="text-gray-500">Carrera:</span> <span className="text-white">{formData.carrera}</span></div>
-                <div><span className="text-gray-500">WhatsApp:</span> <span className="text-white">{formData.whatsapp}</span></div>
+              <div className="bg-hundido p-3.5 rounded-xl border border-linea/10 text-left font-mono text-[11px] space-y-1.5 text-tinta-3">
+                <div><span className="text-tinta-5">Nombre:</span> <span className="text-tinta font-bold">{formData.nombre}</span></div>
+                <div><span className="text-tinta-5">Ciudad/Ruca:</span> <span className="text-acento font-semibold">{formData.ciudad}</span></div>
+                <div><span className="text-tinta-5">Carrera:</span> <span className="text-tinta">{formData.carrera}</span></div>
+                <div><span className="text-tinta-5">WhatsApp:</span> <span className="text-tinta">{formData.whatsapp}</span></div>
               </div>
 
               {/* Botón WhatsApp */}
@@ -312,7 +312,7 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
                 <button 
                   type="button"
                   onClick={resetForm}
-                  className="w-full min-h-[40px] text-gray-400 hover:text-white font-mono text-[10px] uppercase tracking-wider flex items-center justify-center gap-1 transition-colors"
+                  className="w-full min-h-[40px] text-tinta-4 hover:text-tinta font-mono text-[10px] uppercase tracking-wider flex items-center justify-center gap-1 transition-colors"
                 >
                   <RefreshCw className="w-3 h-3" />
                   <span>Modificar o cargar otra respuesta</span>
@@ -323,7 +323,7 @@ ${formData.motivacion ? `*Motivación:* ${formData.motivacion}` : ''}`;
 
         </div>
 
-        <div className="inline-flex items-center justify-center gap-1.5 text-[11px] font-mono text-gray-400 mt-4">
+        <div className="inline-flex items-center justify-center gap-1.5 text-[11px] font-mono text-tinta-4 mt-4">
           <span className="w-1.5 h-1.5 rounded-full bg-pbc animate-pulse"></span>
           <span>Sede {CAMPAMENTO_CONFIG.hotelSede} · Cupos federales</span>
         </div>

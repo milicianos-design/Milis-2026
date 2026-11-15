@@ -45,7 +45,7 @@ export const Interpelacion: React.FC = () => {
 
   return (
     <section 
-      className="pt-9 pb-12 md:py-16 bg-pbc-deep bg-grain text-white relative overflow-hidden border-b border-pbc/15" 
+      className="pt-9 pb-12 md:py-16 bg-fondo bg-grain text-tinta relative overflow-hidden border-b border-pbc/15" 
       id="interpelacion"
     >
       {/* Motion Watermarks */}
@@ -61,18 +61,18 @@ export const Interpelacion: React.FC = () => {
       <div className="relative z-10 max-w-md md:max-w-4xl lg:max-w-5xl mx-auto px-4 md:px-8">
         {/* Encabezado alineado en 2 líneas exactas título + 2 líneas subtítulo */}
         <div className="text-center mb-6 md:mb-10 flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pbc-card border border-pbc/30 text-pbc font-mono text-[10px] md:text-xs uppercase tracking-widest font-bold mb-2 md:mb-3 shadow-sm">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tarjeta border border-pbc/30 text-acento font-mono text-[10px] md:text-xs uppercase tracking-widest font-bold mb-2 md:mb-3 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-pbc animate-pulse"></span>
             <span>BLOQUE 1: LA INTERPELACIÓN</span>
           </div>
           
           <div className="inline-flex flex-col items-center max-w-full">
-            <h2 className="font-coolvetica text-[22px] min-[360px]:text-[25px] sm:text-[29px] md:text-[38px] lg:text-[44px] tracking-tight text-white uppercase leading-[1.04] mb-2 md:mb-3">
+            <h2 className="font-coolvetica text-[22px] min-[360px]:text-[25px] sm:text-[29px] md:text-[38px] lg:text-[44px] tracking-tight text-tinta uppercase leading-[1.04] mb-2 md:mb-3">
               <span className="block whitespace-nowrap">¿QUÉ PASA EN NUESTRA PATRIA</span>
-              <span className="block text-pbc whitespace-nowrap mt-0.5">Y EN NUESTRA GENERACIÓN?</span>
+              <span className="block text-acento whitespace-nowrap mt-0.5">Y EN NUESTRA GENERACIÓN?</span>
             </h2>
             
-            <p className="w-full font-sans text-gray-300 text-[11px] min-[360px]:text-xs sm:text-sm md:text-base leading-snug">
+            <p className="w-full font-sans text-tinta-3 text-[11px] min-[360px]:text-xs sm:text-sm md:text-base leading-snug">
               <span className="block whitespace-nowrap">Un llamado urgente a discernir el tiempo histórico</span>
               <span className="block whitespace-nowrap">uniendo rigor profesional, vida en comunidad y fe.</span>
             </p>
@@ -92,21 +92,21 @@ export const Interpelacion: React.FC = () => {
                 : 'transform 0.4s ease-in 0ms, opacity 0.3s ease-in 0ms',
               willChange: 'transform, opacity'
             }}
-            className="p-5 rounded-2xl bg-[#141212] border-2 border-red-500/40 shadow-[0_8px_30px_rgba(239,68,68,0.2)] relative flex flex-col justify-between"
+            className="p-5 rounded-2xl bg-white dark:bg-[#141212] border-2 border-red-500/40 shadow-[0_8px_30px_rgba(239,68,68,0.12)] dark:shadow-[0_8px_30px_rgba(239,68,68,0.2)] relative flex flex-col justify-between"
           >
             <div className="space-y-3.5">
-              <div className="flex items-center justify-between pb-2.5 border-b border-white/10">
-                <span className="px-2.5 py-1 rounded bg-red-500/20 text-red-400 font-mono text-[10px] font-black uppercase tracking-wider border border-red-500/30">
+              <div className="flex items-center justify-between pb-2.5 border-b border-linea/10">
+                <span className="px-2.5 py-1 rounded bg-red-500/15 dark:bg-red-500/20 text-red-700 dark:text-red-400 font-mono text-[10px] font-black uppercase tracking-wider border border-red-500/30">
                   LA ILUSIÓN ESTÉRIL
                 </span>
-                <Radio className="w-5 h-5 text-red-400 animate-pulse" />
+                <Radio className="w-5 h-5 text-red-600 dark:text-red-400 animate-pulse" />
               </div>
 
               <div>
-                <h3 className="font-coolvetica text-2xl uppercase text-white mb-0.5 text-balance">
+                <h3 className="font-coolvetica text-2xl uppercase text-tinta mb-0.5 text-balance">
                   La trampa de Babel
                 </h3>
-                <p className="font-sans text-xs text-gray-400 text-pretty">
+                <p className="font-sans text-xs text-tinta-4 text-pretty">
                   Hiperindividualismo y fragmentación contemporánea.
                 </p>
               </div>
@@ -119,15 +119,15 @@ export const Interpelacion: React.FC = () => {
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <div className="w-4 h-4 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <X className="w-3 h-3 text-red-400" />
+                      <X className="w-3 h-3 text-red-600 dark:text-red-400" />
                     </div>
-                    <span className="font-sans text-xs sm:text-sm text-gray-300 font-medium">{item}</span>
+                    <span className="font-sans text-xs sm:text-sm text-tinta-3 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="mt-4 pt-2.5 border-t border-white/10 font-mono text-[10px] text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+            <div className="mt-4 pt-2.5 border-t border-linea/10 font-mono text-[10px] text-tinta-4 uppercase tracking-widest flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
               <span>Diagnóstico: Indiferencia y parálisis</span>
             </div>
@@ -143,21 +143,21 @@ export const Interpelacion: React.FC = () => {
                 : 'transform 0.4s ease-in 0ms, opacity 0.3s ease-in 0ms',
               willChange: 'transform, opacity'
             }}
-            className="p-5 rounded-2xl bg-pbc-card border-2 border-pbc/60 shadow-[0_0_35px_rgba(100,213,171,0.25)] relative flex flex-col justify-between"
+            className="p-5 rounded-2xl bg-tarjeta border-2 border-pbc/60 shadow-[0_0_35px_rgba(100,213,171,0.25)] relative flex flex-col justify-between"
           >
             <div className="space-y-3.5">
-              <div className="flex items-center justify-between pb-2.5 border-b border-white/10">
+              <div className="flex items-center justify-between pb-2.5 border-b border-linea/10">
                 <span className="px-2.5 py-1 rounded bg-pbc text-pbc-deep font-mono text-[10px] font-black uppercase tracking-wider">
                   LA RESPUESTA MILICIANA
                 </span>
-                <ShieldAlert className="w-5 h-5 text-pbc" />
+                <ShieldAlert className="w-5 h-5 text-acento" />
               </div>
 
               <div>
-                <h3 className="font-coolvetica text-2xl uppercase text-white mb-0.5 text-balance">
+                <h3 className="font-coolvetica text-2xl uppercase text-tinta mb-0.5 text-balance">
                   El camino de Nehemías
                 </h3>
-                <p className="font-sans text-xs text-pbc font-medium text-pretty">
+                <p className="font-sans text-xs text-acento font-medium text-pretty">
                   Reedificar los muros caídos hombro a hombro.
                 </p>
               </div>
@@ -170,15 +170,15 @@ export const Interpelacion: React.FC = () => {
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <div className="w-4 h-4 rounded-full bg-pbc/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <CheckCircle2 className="w-3 h-3 text-pbc" />
+                      <CheckCircle2 className="w-3 h-3 text-acento" />
                     </div>
-                    <span className="font-sans text-xs sm:text-sm text-gray-200 font-semibold">{item}</span>
+                    <span className="font-sans text-xs sm:text-sm text-tinta-2 font-semibold">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="mt-4 pt-2.5 border-t border-white/10 font-mono text-[10px] text-pbc uppercase tracking-widest flex items-center gap-1.5 font-bold">
+            <div className="mt-4 pt-2.5 border-t border-linea/10 font-mono text-[10px] text-acento uppercase tracking-widest flex items-center gap-1.5 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-pbc animate-ping"></span>
               <span>Respuesta: Reconstrucción & Bien Común</span>
             </div>
