@@ -24,6 +24,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Modo claro / oscuro. public/Campamentobn/tema.js pone la clase "dark" en <html> antes de pintar
+ * (según lo que eligió la persona o, si nunca eligió, según su celular o compu) y src/lib/tema.ts
+ * la cambia con el botón sol/luna. Valores en RGB para poder usar transparencias (bg-fondo/95).
+ */
+:root {
+  color-scheme: light;
+  --c-fondo: 244 249 247;      /* #F4F9F7 */
+  --c-fondo-alt: 232 240 236;  /* #E8F0EC */
+  --c-superficie: 255 255 255;
+  --c-hundido: 236 243 240;    /* #ECF3F0 */
+  --c-tarjeta: 255 255 255;
+  --c-tinta: 10 14 13;         /* #0A0E0D */
+  --c-tinta-2: 27 37 34;       /* #1B2522 */
+  --c-tinta-3: 43 58 53;       /* #2B3A35 */
+  --c-tinta-4: 76 92 86;       /* #4C5C56 */
+  --c-tinta-5: 107 122 116;    /* #6B7A74 */
+  --c-linea: 10 14 13;
+  --c-acento: 0 113 86;        /* #007156 */
+  --c-ambar: 146 84 18;        /* #925412 */
+}
+
+.dark {
+  color-scheme: dark;
+  --c-fondo: 10 14 13;         /* #0A0E0D (pbc-deep) */
+  --c-fondo-alt: 13 18 17;     /* #0D1211 */
+  --c-superficie: 18 25 23;    /* #121917 */
+  --c-hundido: 18 25 23;       /* #121917 (pbc-carbon) */
+  --c-tarjeta: 23 33 30;       /* #17211E (pbc-card) */
+  --c-tinta: 255 255 255;
+  --c-tinta-2: 229 231 235;    /* gray-200 */
+  --c-tinta-3: 209 213 219;    /* gray-300 */
+  --c-tinta-4: 156 163 175;    /* gray-400 */
+  --c-tinta-5: 107 114 128;    /* gray-500 */
+  --c-linea: 255 255 255;
+  --c-acento: 100 213 171;     /* #64D5AB (pbc) */
+  --c-ambar: 245 202 160;      /* #F5CAA0 */
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -95,10 +134,10 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0E0D;
+  background: rgb(var(--c-fondo));
 }
 ::-webkit-scrollbar-thumb {
-  background: #17211E;
+  background: rgb(var(--c-tarjeta));
   border-radius: 4px;
   border: 1px solid rgba(100, 213, 171, 0.3);
 }
@@ -280,7 +319,7 @@
 .input-micro-focus:focus {
   border-color: #64D5AB;
   box-shadow: 0 0 16px -2px rgba(100, 213, 171, 0.4);
-  background-color: #17211E;
+  background-color: rgb(var(--c-tarjeta));
 }
 
 

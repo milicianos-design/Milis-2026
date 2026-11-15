@@ -10,27 +10,31 @@ import { Testimonios } from './components/Testimonios';
 import { LogisticaTicket } from './components/LogisticaTicket';
 import { TypeformLlamado } from './components/TypeformLlamado';
 import { Footer } from './components/Footer';
+import { useTema } from './lib/tema';
 
 export const App: React.FC = () => {
+  const { tema, alternar } = useTema();
+  const oscuro = tema === 'oscuro';
+
   return (
-    <div className="min-h-screen bg-pbc-deep text-white font-sans selection:bg-pbc selection:text-pbc-deep">
+    <div className="min-h-screen bg-fondo text-tinta font-sans selection:bg-pbc selection:text-pbc-deep">
       {/* Toast Notification Provider (Sonner) */}
       <Toaster 
         position="top-center" 
         richColors 
-        theme="dark"
+        theme={oscuro ? 'dark' : 'light'}
         toastOptions={{
           style: {
-            background: '#17211E',
-            border: '1px solid #64D5AB',
-            color: '#FFFFFF',
+            background: oscuro ? '#17211E' : '#FFFFFF',
+            border: `1px solid ${oscuro ? '#64D5AB' : '#007156'}`,
+            color: oscuro ? '#FFFFFF' : '#0A0E0D',
             fontFamily: 'Raleway, sans-serif'
           }
         }}
       />
 
-      {/* 1. Header con Escudo Vectorial y Navegación */}
-      <Header />
+      {/* 1. Header con Escudo Vectorial, Navegación y botón de modo claro / oscuro */}
+      <Header tema={tema} onAlternarTema={alternar} />
 
       <main>
         {/* 2. Hero con Video Modal y Métricas */}
