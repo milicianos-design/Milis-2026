@@ -32,6 +32,7 @@ estadísticas de visitas (si no carga, el sitio funciona igual).
 ```
 ├── *.html                 páginas del sitio
 ├── Campamentobn/          landing del Campamento Nacional (React); sus fotos y videos en public/Campamentobn/media
+├── admin/                 panel de administración (/admin); su lógica en js/admin.js
 ├── js/main.js             lógica de las páginas
 ├── js/api.js              cliente de la API (login, posts, notas…)
 ├── js/security.js         limpieza de lo que escriben los usuarios antes de mostrarlo
@@ -78,8 +79,8 @@ npm run db:stop   # apaga la base al terminar
 - Los emails no se envían en local: se guardan como archivos en `.dev/mail/` (de ahí se copian los
   links de confirmación de cuenta y de nueva contraseña).
 - Las imágenes que se suben quedan en `.dev/uploads/`.
-- Para dar permisos a una cuenta: `php api/bin/set-role.php email@ejemplo.com admin` (o `redactor`, `miliciano`).
-  Los redactores escriben Notas de Vanguardia y moderan; los admins además borran notas ajenas.
+- Los permisos de las cuentas se manejan desde el panel `/admin` (ver *Panel de administración*). Para crear
+  el primer admin, o si no hay ninguno: `php api/bin/set-role.php email@ejemplo.com admin`.
 
 ### Otros comandos
 
@@ -156,12 +157,32 @@ Cada persona que publica usa su propia llave SSH (se crea como indica `.env.exam
 Hostinger hace copias automáticas (la frecuencia depende del plan). Igual, antes de cada actualización
 importante exportá la base desde phpMyAdmin y descargá `public_html/uploads/`: son lo único que no está en este repositorio.
 
+## Panel de administración
+
+`https://agrupacionjuvenil.com/admin` — solo para cuentas con rol **admin** (el servidor lo controla en cada
+pedido; cualquier otra cuenta ve "Sin acceso"). No aparece en buscadores ni carga Google Analytics.
+
+- **Resumen:** totales de usuarios, posts, comentarios, notas y postulaciones, y cuántos hubo en la última semana.
+- **Usuarios:** buscar, filtrar por rol o estado, y ver la última actividad de cada cuenta.
+  - **Nuevo usuario:** se carga nombre, email y rol, y a la persona le llega un email para elegir su contraseña
+    (el enlace vale 7 días y se puede reenviar). El admin nunca conoce la contraseña de nadie.
+  - **Rol:** se cambia desde la tabla y vale al instante, sin que la persona tenga que volver a entrar.
+  - **Suspender:** la persona no puede entrar más y se le cierra la sesión en el momento. Lo que publicó se
+    conserva; se puede reactivar. (No hay "borrar": borraría también todos sus posts, notas y comentarios.)
+  - Nadie puede cambiarse su propio rol ni suspenderse a sí mismo, así el sitio nunca queda sin admin.
+- **Postulaciones:** las del Campamento Nacional, con búsqueda y botón para descargarlas en Excel.
+
+| Rol | Puede |
+|---|---|
+| `miliciano` | Publicar en el foro, comentar y borrar lo suyo (es el rol de toda cuenta nueva) |
+| `redactor` | Además escribir Notas de Vanguardia y moderar (borrar posts y comentarios ajenos) |
+| `admin` | Además borrar notas ajenas, usar este panel y ver las postulaciones (datos personales) |
+
 ## Postulaciones al Campamento Nacional
 
 El formulario de `/Campamentobn/` guarda cada postulación en la tabla `campamento_postulaciones`
-(antes iban a una planilla de Google). Para verlas, un **admin** logueado en el sitio abre:
-
-- `https://tudominio.com/api/campamento/postulaciones.csv` → descarga una planilla que abre en Excel o Google Sheets.
+(antes iban a una planilla de Google). Se ven en el panel (`/admin` → *Postulaciones*), o descargando
+directamente `https://agrupacionjuvenil.com/api/campamento/postulaciones.csv` con una cuenta admin.
 
 La API limita los envíos (20 por hora desde una misma conexión) y descarta los de bots con un campo trampa.
 

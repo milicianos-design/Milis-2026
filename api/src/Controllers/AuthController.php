@@ -3,29 +3,25 @@ declare(strict_types=1);
 
 namespace Milis\Controllers;
 
+use Milis\Auth\AccountMail;
 use Milis\Auth\RateLimiter;
 use Milis\Auth\Sessions;
-use Milis\Config;
 use Milis\Db;
 use Milis\Http\HttpError;
 use Milis\Http\Input;
 use Milis\Http\JsonResponse;
 use Milis\Http\Request;
-use Milis\Mail\Mailer;
 
 final class AuthController
 {
     private const PASSWORD_MIN = 8;
     private const PASSWORD_MAX = 128;
-    private const VERIFY_TTL = 86400;  // 24 h
-    private const RESET_TTL = 3600;    // 1 h
 
     public function __construct(
         private readonly Db $db,
         private readonly Sessions $sessions,
         private readonly RateLimiter $limiter,
-        private readonly Mailer $mailer,
-        private readonly Config $config,
+        private readonly AccountMail $mail,
     ) {
     }
 
@@ -52,7 +48,7 @@ final class AuthController
                     'INSERT INTO users (email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?)',
                     [$email, $this->hash($password), $firstName, $lastName]
                 );
-                $this->sendVerificationEmail($userId, $email, $firstName);
+                $this->mail->sendVerification($userId, $email, $firstName);
             });
         } catch (\PDOException $e) {
             if (Db::isDuplicateKey($e)) {
@@ -66,7 +62,7 @@ final class AuthController
     public function verifyEmail(Request $request): array
     {
         $this->limiter->hit('verify:ip:' . $request->ip(), 30, 3600);
-        $userId = $this->consumeToken((string) (new Input($request->json()))->text('token', 'token', 128), 'verify_email');
+        $userId = $this->mail->consume((string) (new Input($request->json()))->text('token', 'token', 128), 'verify_email');
         $this->db->run('UPDATE users SET email_verified_at = COALESCE(email_verified_at, UTC_TIMESTAMP()) WHERE id = ?', [$userId]);
         return ['message' => '¡Cuenta confirmada! Ya ingresaste.'] + $this->sessionPayload($this->sessions->login($userId));
     }
@@ -88,7 +84,7 @@ final class AuthController
 
         if ($user['email_verified_at'] === null) {
             if ($this->limiter->attempt("verify-resend:user:$userId", 1, 300)) {
-                $this->sendVerificationEmail($userId, $email, $user['first_name']);
+                $this->mail->sendVerification($userId, $email, $user['first_name']);
             }
             throw HttpError::forbidden('Todavía no confirmaste tu email. Te enviamos de nuevo el enlace de confirmación.');
         }
@@ -111,18 +107,10 @@ final class AuthController
         $this->limiter->hit('forgot:ip:' . $request->ip(), 10, 3600);
         $this->limiter->hit('forgot:email:' . sha1($email), 3, 3600);
 
-        $user = $this->db->one('SELECT id, first_name FROM users WHERE email = ?', [$email]);
+        // A las cuentas suspendidas no se les manda nada (igual no podrían entrar).
+        $user = $this->db->one('SELECT id, first_name FROM users WHERE email = ? AND suspended_at IS NULL', [$email]);
         if ($user !== null) {
-            $token = $this->issueToken((int) $user['id'], 'reset_password', self::RESET_TTL);
-            $link = $this->config->appUrl() . '/?nueva-clave=' . $token;
-            $this->mailer->send($email, 'Restablecer tu contraseña - Milicianos', <<<TXT
-                Hola {$user['first_name']}:
-
-                Para elegir una contraseña nueva entrá a este enlace (vale por 1 hora):
-                $link
-
-                Si no lo pediste vos, ignorá este email: tu contraseña no cambia.
-                TXT);
+            $this->mail->sendPasswordReset((int) $user['id'], $email, $user['first_name']);
         }
         // Misma respuesta exista o no el email, para no revelar quién está registrado.
         return ['message' => 'Si el email está registrado, te enviamos un enlace para restablecer la contraseña.'];
@@ -130,22 +118,38 @@ final class AuthController
 
     public function resetPassword(Request $request): array
     {
+        $userId = $this->setPasswordWithToken($request, 'reset_password');
+        return ['message' => 'Contraseña actualizada con éxito.'] + $this->sessionPayload($this->sessions->login($userId));
+    }
+
+    /** POST /auth/accept-invite — la persona invitada por un admin elige su contraseña y queda adentro. */
+    public function acceptInvite(Request $request): array
+    {
+        $userId = $this->setPasswordWithToken($request, 'invite');
+        return ['message' => '¡Bienvenido/a! Tu cuenta quedó activa.'] + $this->sessionPayload($this->sessions->login($userId));
+    }
+
+    /**
+     * Cambia la contraseña con el token de un email (recuperación o invitación). Como el enlace llegó a
+     * su casilla, el email queda confirmado. Cierra las demás sesiones de la cuenta.
+     */
+    private function setPasswordWithToken(Request $request, string $purpose): int
+    {
         $input = new Input($request->json());
         $token = (string) $input->text('token', 'token', 128);
         $password = $this->newPassword($input);
         $this->limiter->hit('reset:ip:' . $request->ip(), 20, 3600);
 
-        $userId = $this->db->transaction(function () use ($token, $password) {
-            $userId = $this->consumeToken($token, 'reset_password');
+        return $this->db->transaction(function () use ($token, $password, $purpose) {
+            $userId = $this->mail->consume($token, $purpose);
             $this->db->run(
                 'UPDATE users SET password_hash = ?, email_verified_at = COALESCE(email_verified_at, UTC_TIMESTAMP()) WHERE id = ?',
                 [$this->hash($password), $userId]
             );
-            $this->db->run("UPDATE user_tokens SET used_at = UTC_TIMESTAMP() WHERE user_id = ? AND purpose = 'reset_password' AND used_at IS NULL", [$userId]);
+            $this->db->run('UPDATE user_tokens SET used_at = UTC_TIMESTAMP() WHERE user_id = ? AND purpose = ? AND used_at IS NULL', [$userId, $purpose]);
             $this->sessions->logoutEverywhere($userId);
             return $userId;
         });
-        return ['message' => 'Contraseña actualizada con éxito.'] + $this->sessionPayload($this->sessions->login($userId));
     }
 
     private function sessionPayload(?array $user): array
@@ -160,51 +164,6 @@ final class AuthController
             ],
             'csrf_token' => $user['csrf_token'] ?? null,
         ];
-    }
-
-    private function sendVerificationEmail(int $userId, string $email, string $firstName): void
-    {
-        $token = $this->issueToken($userId, 'verify_email', self::VERIFY_TTL);
-        $link = $this->config->appUrl() . '/?confirmar=' . $token;
-        $this->mailer->send($email, 'Confirmá tu cuenta - Milicianos', <<<TXT
-            Hola $firstName:
-
-            Para activar tu cuenta en la plataforma Milicianos entrá a este enlace (vale por 24 horas):
-            $link
-
-            Si no te registraste vos, ignorá este email.
-            TXT);
-    }
-
-    private function issueToken(int $userId, string $purpose, int $ttlSeconds): string
-    {
-        $token = bin2hex(random_bytes(32));
-        $this->db->run(
-            'INSERT INTO user_tokens (token_hash, user_id, purpose, expires_at) VALUES (?, ?, ?, UTC_TIMESTAMP() + INTERVAL ? SECOND)',
-            [hash('sha256', $token), $userId, $purpose, $ttlSeconds]
-        );
-        return $token;
-    }
-
-    /** Marca el token como usado y devuelve el id del usuario. */
-    private function consumeToken(string $token, string $purpose): int
-    {
-        $invalid = HttpError::badRequest('El enlace no es válido o ya venció. Pedí uno nuevo.');
-        if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
-            throw $invalid;
-        }
-        $hash = hash('sha256', $token);
-        $userId = $this->db->value(
-            'SELECT user_id FROM user_tokens WHERE token_hash = ? AND purpose = ? AND used_at IS NULL AND expires_at > UTC_TIMESTAMP()',
-            [$hash, $purpose]
-        );
-        // El UPDATE condicional evita que dos pedidos simultáneos usen el mismo token.
-        $used = $userId !== null
-            && $this->db->run('UPDATE user_tokens SET used_at = UTC_TIMESTAMP() WHERE token_hash = ? AND used_at IS NULL', [$hash])->rowCount() === 1;
-        if (!$used) {
-            throw $invalid;
-        }
-        return (int) $userId;
     }
 
     private function newPassword(Input $input): string

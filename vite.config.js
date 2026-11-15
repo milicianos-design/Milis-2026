@@ -89,6 +89,7 @@ export default defineConfig(({ mode }) => {
           promesas: resolve(__dirname, 'promesas.html'),
           stacatalina: resolve(__dirname, 'sta_catalina.html'),
           campamentobn: resolve(__dirname, 'Campamentobn/index.html'),
+          admin: resolve(__dirname, 'admin/index.html'),
         },
       },
     },

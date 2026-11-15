@@ -51,7 +51,8 @@ final class Mailer
         if ($dir === '' || (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir))) {
             throw new \RuntimeException('mail.log_dir no existe ni se pudo crear.');
         }
-        $file = sprintf('%s/%s-%s.txt', rtrim($dir, '/'), gmdate('Ymd-His'), bin2hex(random_bytes(4)));
+        // Con microsegundos en el nombre, ordenar los archivos por nombre es ordenarlos por hora de envío.
+        $file = sprintf('%s/%s-%s.txt', rtrim($dir, '/'), (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Ymd-His-u'), bin2hex(random_bytes(4)));
         file_put_contents($file, "Para: $to\nAsunto: $subject\n\n$body\n");
     }
 }

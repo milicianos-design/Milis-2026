@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Milis;
 
+use Milis\Auth\AccountMail;
 use Milis\Auth\RateLimiter;
 use Milis\Auth\Sessions;
 use Milis\Content\EditorJsContent;
 use Milis\Content\HtmlSanitizer;
 use Milis\Content\ImageUploader;
 use Milis\Content\Polls;
+use Milis\Controllers\AdminController;
 use Milis\Controllers\AuthController;
 use Milis\Controllers\CampamentoController;
 use Milis\Controllers\CommentController;
@@ -69,12 +71,15 @@ final class App
         $sanitizer = new HtmlSanitizer();
         $uploader = new ImageUploader($config, $db);
 
-        $auth = new AuthController($db, $sessions, $limiter, new Mailer($config), $config);
+        $accountMail = new AccountMail($db, new Mailer($config), $config);
+
+        $auth = new AuthController($db, $sessions, $limiter, $accountMail);
         $posts = new PostController($db, $sessions, $limiter, $sanitizer, $uploader, new Polls($db));
         $comments = new CommentController($db, $sessions, $limiter);
         $notes = new NoteController($db, $sessions, $limiter, new EditorJsContent($sanitizer), $uploader);
         $uploads = new UploadController($sessions, $limiter, $uploader);
         $campamento = new CampamentoController($db, $sessions, $limiter);
+        $admin = new AdminController($db, $sessions, $limiter, $accountMail);
 
         $router = new Router();
         $router->add('GET', '/auth/me', $auth->me(...));
@@ -84,6 +89,7 @@ final class App
         $router->add('POST', '/auth/logout', $auth->logout(...));
         $router->add('POST', '/auth/forgot-password', $auth->forgotPassword(...));
         $router->add('POST', '/auth/reset-password', $auth->resetPassword(...));
+        $router->add('POST', '/auth/accept-invite', $auth->acceptInvite(...));
 
         $router->add('GET', '/posts', $posts->list(...));
         $router->add('POST', '/posts', $posts->create(...));
@@ -108,6 +114,14 @@ final class App
         $router->add('POST', '/campamento/postulaciones', $campamento->create(...));
         $router->add('GET', '/campamento/postulaciones', $campamento->list(...));
         $router->add('GET', '/campamento/postulaciones.csv', $campamento->csv(...));
+
+        $router->add('GET', '/admin/resumen', $admin->summary(...));
+        $router->add('GET', '/admin/usuarios', $admin->users(...));
+        $router->add('POST', '/admin/usuarios', $admin->createUser(...));
+        $router->add('POST', '/admin/usuarios/{id}/invitacion', $admin->resendInvitation(...));
+        $router->add('PUT', '/admin/usuarios/{id}/rol', $admin->changeRole(...));
+        $router->add('POST', '/admin/usuarios/{id}/suspender', $admin->suspend(...));
+        $router->add('POST', '/admin/usuarios/{id}/reactivar', $admin->reactivate(...));
         return $router;
     }
 

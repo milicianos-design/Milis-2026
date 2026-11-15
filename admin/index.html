@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Administración - Milicianos</title>
+    <link href="/src/input.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <!-- Panel de administración: solo para admins (el servidor revisa el permiso en cada pedido).
+         No carga Google Analytics: acá se ven datos personales. -->
+    <script type="module" src="/js/admin.js"></script>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen antialiased">
+    <header class="bg-white border-b border-outline-variant/60">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+            <a href="/" class="font-headline font-extrabold tracking-tight text-primary text-lg">
+                Milicianos <span class="text-on-surface-variant font-semibold">· Administración</span>
+            </a>
+            <div id="session-bar" hidden>
+                <span id="session-name" class="text-sm text-on-surface-variant mr-3"></span>
+                <button id="logout" type="button" class="text-sm font-semibold text-primary hover:underline">Salir</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <p id="loading-view" class="text-on-surface-variant">Cargando…</p>
+
+        <!-- Sin sesión -->
+        <section id="login-view" hidden>
+            <form id="login-form" class="max-w-sm mx-auto mt-10 bg-white rounded-xl border border-outline-variant/60 p-6 space-y-4">
+                <h1 class="font-headline text-2xl font-extrabold tracking-tight">Ingresar</h1>
+                <p class="text-sm text-on-surface-variant">Este panel es solo para administradores.</p>
+                <label class="block text-sm font-semibold">Email
+                    <input id="login-email" type="email" required autocomplete="email" class="mt-1 w-full rounded-lg border border-outline-variant px-3 py-2 font-normal focus:outline-none focus:border-primary">
+                </label>
+                <label class="block text-sm font-semibold">Contraseña
+                    <input id="login-password" type="password" required autocomplete="current-password" class="mt-1 w-full rounded-lg border border-outline-variant px-3 py-2 font-normal focus:outline-none focus:border-primary">
+                </label>
+                <p id="login-error" class="text-sm text-error" hidden></p>
+                <button type="submit" class="w-full rounded-lg bg-primary text-white font-bold py-2.5 hover:bg-primary-container disabled:opacity-60">Ingresar</button>
+                <p class="text-xs text-on-surface-variant">¿Olvidaste la contraseña? Recuperala desde <a href="/foro.html" class="text-primary font-semibold hover:underline">el ingreso del sitio</a>.</p>
+            </form>
+        </section>
+
+        <!-- Con sesión pero sin permiso -->
+        <section id="denied-view" hidden>
+            <div class="max-w-md mx-auto mt-10 bg-white rounded-xl border border-outline-variant/60 p-6 text-center space-y-3">
+                <h1 class="font-headline text-2xl font-extrabold tracking-tight">Sin acceso</h1>
+                <p class="text-on-surface-variant">Tu cuenta no es de administrador. Si necesitás entrar, pedíselo a un admin.</p>
+                <a href="/" class="inline-block text-primary font-semibold hover:underline">Volver al sitio</a>
+            </div>
+        </section>
+
+        <!-- Panel -->
+        <section id="panel-view" hidden>
+            <nav class="flex gap-1 border-b border-outline-variant/60 mb-6" aria-label="Secciones">
+                <a href="#resumen" data-tab="resumen" class="tab px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px">Resumen</a>
+                <a href="#usuarios" data-tab="usuarios" class="tab px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px">Usuarios</a>
+                <a href="#postulaciones" data-tab="postulaciones" class="tab px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px">Postulaciones</a>
+            </nav>
+
+            <!-- Resumen -->
+            <div id="tab-resumen" hidden>
+                <div id="summary-cards" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+            </div>
+
+            <!-- Usuarios -->
+            <div id="tab-usuarios" hidden>
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <input id="user-search" type="search" placeholder="Buscar por nombre o email" class="flex-1 min-w-[14rem] rounded-lg border border-outline-variant px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary">
+                    <select id="user-role-filter" class="rounded-lg border border-outline-variant px-3 py-2 text-sm bg-white">
+                        <option value="">Todos los roles</option>
+                        <option value="admin">Admins</option>
+                        <option value="redactor">Redactores</option>
+                        <option value="miliciano">Milicianos</option>
+                    </select>
+                    <select id="user-status-filter" class="rounded-lg border border-outline-variant px-3 py-2 text-sm bg-white">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activas</option>
+                        <option value="pending_invite">Invitación pendiente</option>
+                        <option value="unverified">Sin confirmar email</option>
+                        <option value="suspended">Suspendidas</option>
+                    </select>
+                    <button id="new-user-toggle" type="button" class="rounded-lg bg-primary text-white text-sm font-bold px-4 py-2 hover:bg-primary-container">Nuevo usuario</button>
+                </div>
+
+                <form id="new-user-form" class="bg-white rounded-xl border border-outline-variant/60 p-5 mb-4" hidden>
+                    <h2 class="font-headline font-bold text-lg mb-1">Nuevo usuario</h2>
+                    <p class="text-sm text-on-surface-variant mb-4">Le llega un email para elegir su contraseña (el enlace vale 7 días). Vos nunca la conocés.</p>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <label class="text-sm font-semibold">Nombre
+                            <input name="first_name" required maxlength="80" class="mt-1 w-full rounded-lg border border-outline-variant px-3 py-2 font-normal focus:outline-none focus:border-primary">
+                        </label>
+                        <label class="text-sm font-semibold">Apellido
+                            <input name="last_name" required maxlength="80" class="mt-1 w-full rounded-lg border border-outline-variant px-3 py-2 font-normal focus:outline-none focus:border-primary">
+                        </label>
+                        <label class="text-sm font-semibold">Email
+                            <input name="email" type="email" required maxlength="254" class="mt-1 w-full rounded-lg border border-outline-variant px-3 py-2 font-normal focus:outline-none focus:border-primary">
+                        </label>
+                        <label class="text-sm font-semibold">Rol
+                            <select name="role" class="mt-1 w-full rounded-lg border border-outline-variant px-3 py-2 font-normal bg-white">
+                                <option value="miliciano">Miliciano: foro y comentarios</option>
+                                <option value="redactor">Redactor: además notas y moderación</option>
+                                <option value="admin">Admin: además este panel y las postulaciones</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button type="submit" class="rounded-lg bg-primary text-white text-sm font-bold px-4 py-2 hover:bg-primary-container disabled:opacity-60">Enviar invitación</button>
+                        <button id="new-user-cancel" type="button" class="rounded-lg text-sm font-semibold px-4 py-2 text-on-surface-variant hover:bg-surface-container">Cancelar</button>
+                    </div>
+                </form>
+
+                <p id="users-count" class="text-sm text-on-surface-variant mb-2"></p>
+                <div class="overflow-x-auto bg-white rounded-xl border border-outline-variant/60">
+                    <table class="w-full text-sm">
+                        <thead class="text-left text-xs uppercase tracking-wider text-on-surface-variant bg-surface-container-low">
+                            <tr>
+                                <th class="px-4 py-3">Persona</th>
+                                <th class="px-4 py-3">Rol</th>
+                                <th class="px-4 py-3">Estado</th>
+                                <th class="px-4 py-3">Alta</th>
+                                <th class="px-4 py-3">Última actividad</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-body" class="divide-y divide-outline-variant/40"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Postulaciones del campamento -->
+            <div id="tab-postulaciones" hidden>
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <input id="post-search" type="search" placeholder="Buscar por nombre, ciudad o carrera" class="flex-1 min-w-[14rem] rounded-lg border border-outline-variant px-3 py-2 text-sm bg-white focus:outline-none focus:border-primary">
+                    <a href="/api/campamento/postulaciones.csv" class="rounded-lg bg-secondary text-white text-sm font-bold px-4 py-2 hover:opacity-90">Descargar Excel</a>
+                </div>
+                <p id="postulaciones-count" class="text-sm text-on-surface-variant mb-2"></p>
+                <div class="overflow-x-auto bg-white rounded-xl border border-outline-variant/60">
+                    <table class="w-full text-sm">
+                        <thead class="text-left text-xs uppercase tracking-wider text-on-surface-variant bg-surface-container-low">
+                            <tr>
+                                <th class="px-4 py-3">Fecha</th>
+                                <th class="px-4 py-3">Nombre</th>
+                                <th class="px-4 py-3">WhatsApp</th>
+                                <th class="px-4 py-3">Ciudad / Ruca</th>
+                                <th class="px-4 py-3">Carrera</th>
+                                <th class="px-4 py-3">Motivación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postulaciones-body" class="divide-y divide-outline-variant/40"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 left-6 right-6 sm:left-auto max-w-sm rounded-lg px-4 py-3 text-sm font-semibold shadow-lg text-white" hidden></div>
+</body>
+</html>

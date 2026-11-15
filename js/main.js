@@ -246,12 +246,21 @@ function setupAuthModalEvents() {
             forgotLink.classList.add('hidden');
             authSubmit.innerText = "Actualizar Contraseña";
             switchText.innerHTML = "";
+        } else if (mode === 'accept_invite') {
+            authTitle.innerText = "Activá tu cuenta";
+            authDesc.innerText = "Elegí la contraseña con la que vas a ingresar (al menos 8 caracteres).";
+            nameFields.classList.add('hidden');
+            passContainer.classList.remove('hidden');
+            forgotLink.classList.add('hidden');
+            authSubmit.innerText = "Activar cuenta";
+            switchText.innerHTML = "";
         }
 
         // Para elegir una clave nueva no hace falta el email: el enlace ya identifica la cuenta.
+        const fromEmailLink = mode === 'update_password' || mode === 'accept_invite';
         const emailInput = document.getElementById('auth-email');
-        emailInput.required = mode !== 'update_password';
-        emailInput.closest('.space-y-2').classList.toggle('hidden', mode === 'update_password');
+        emailInput.required = !fromEmailLink;
+        emailInput.closest('.space-y-2').classList.toggle('hidden', fromEmailLink);
 
         // Re-attach switch btn event if destroyed by innerHTML
         const newSwitchBtn = document.getElementById('auth-switch-btn');
@@ -300,6 +309,12 @@ function setupAuthModalEvents() {
                 showToast(message, "success");
                 toggleMode('login');
                 closeModal();
+            } else if (mode === 'accept_invite') {
+                const { message } = await api.auth.acceptInvite(passwordResetToken, password);
+                passwordResetToken = null;
+                showToast(message, "success");
+                toggleMode('login');
+                closeModal();
             } else {
                 await api.auth.login(email, password);
                 showToast("Conexión establecida correctamente.", "success");
@@ -313,6 +328,7 @@ function setupAuthModalEvents() {
             if (mode === 'signup') authSubmit.innerText = "Registrarse";
             else if (mode === 'forgot') authSubmit.innerText = "Enviar Email de Recupero";
             else if (mode === 'update_password') authSubmit.innerText = "Actualizar Contraseña";
+            else if (mode === 'accept_invite') authSubmit.innerText = "Activar cuenta";
             else authSubmit.innerText = "Continuar";
         }
     });
@@ -321,7 +337,7 @@ function setupAuthModalEvents() {
 
 // Lo asigna setupAuthModalEvents: cambia el modal entre login, registro, recuperar y nueva clave.
 let setAuthMode = () => {};
-// Token del enlace "?nueva-clave=..." del email de recuperación.
+// Token del enlace "?nueva-clave=..." (recuperación) o "?invitacion=..." (cuenta creada por un admin).
 let passwordResetToken = null;
 
 function openAuth(mode = 'login') {
@@ -334,17 +350,20 @@ function openAuth(mode = 'login') {
 }
 
 /**
- * Enlaces que llegan por email: "?confirmar=TOKEN" (activar la cuenta) y "?nueva-clave=TOKEN"
- * (elegir otra contraseña). Se sacan de la barra de direcciones para que no queden en el historial.
+ * Enlaces que llegan por email: "?confirmar=TOKEN" (activar la cuenta), "?nueva-clave=TOKEN"
+ * (elegir otra contraseña) e "?invitacion=TOKEN" (cuenta creada por un admin: elegir la contraseña).
+ * Se sacan de la barra de direcciones para que no queden en el historial.
  */
 async function handleEmailLinks() {
     const params = new URLSearchParams(window.location.search);
     const verifyToken = params.get('confirmar');
     const resetToken = params.get('nueva-clave');
-    if (!verifyToken && !resetToken) return;
+    const inviteToken = params.get('invitacion');
+    if (!verifyToken && !resetToken && !inviteToken) return;
 
     params.delete('confirmar');
     params.delete('nueva-clave');
+    params.delete('invitacion');
     const query = params.toString();
     history.replaceState(null, '', window.location.pathname + (query ? `?${query}` : '') + window.location.hash);
 
@@ -355,6 +374,9 @@ async function handleEmailLinks() {
         } catch (err) {
             showToast(err.message, 'error');
         }
+    } else if (inviteToken) {
+        passwordResetToken = inviteToken;
+        openAuth('accept_invite');
     } else {
         passwordResetToken = resetToken;
         openAuth('update_password');

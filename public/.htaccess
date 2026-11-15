@@ -26,6 +26,9 @@ AddType image/webp .webp
     RewriteCond %{REQUEST_URI} !^/Campamentobn(/|$)
     RewriteCond %{REQUEST_URI} ^/campamentobn(/.*)?$ [NC]
     RewriteRule ^ https://%{HTTP_HOST}/Campamentobn%1 [L,R=301]
+
+    # Panel de administración: /admin → /admin/
+    RewriteRule ^admin$ https://%{HTTP_HOST}/admin/ [L,R=301]
 </IfModule>
 
 # Archivos ocultos (.env, .git, etc.) nunca se sirven. .well-known queda accesible para el certificado SSL.

@@ -16,6 +16,7 @@ use Milis\Http\Request;
 final class Sessions
 {
     public const MODERATOR_ROLES = ['admin', 'redactor'];
+    private const SUSPENDED = 'Tu cuenta está suspendida. Si creés que es un error, hablá con un administrador.';
 
     private ?array $user = null;
     private ?string $tokenHash = null;
@@ -43,7 +44,7 @@ final class Sessions
         $row = $this->db->one(
             'SELECT s.token_hash, s.csrf_token, s.last_used_at, u.id, u.email, u.first_name, u.last_name, u.role
                FROM sessions s JOIN users u ON u.id = s.user_id
-              WHERE s.token_hash = ? AND s.expires_at > UTC_TIMESTAMP()',
+              WHERE s.token_hash = ? AND s.expires_at > UTC_TIMESTAMP() AND u.suspended_at IS NULL',
             [hash('sha256', $token)]
         );
         if ($row === null) {
@@ -57,6 +58,7 @@ final class Sessions
                 'UPDATE sessions SET last_used_at = UTC_TIMESTAMP(), expires_at = UTC_TIMESTAMP() + INTERVAL ? DAY WHERE token_hash = ?',
                 [$this->lifetimeDays(), $row['token_hash']]
             );
+            $this->db->run('UPDATE users SET last_seen_at = UTC_TIMESTAMP() WHERE id = ?', [$row['id']]);
             $this->setCookie($token);
         }
 
@@ -84,9 +86,16 @@ final class Sessions
         return $user !== null && in_array($user['role'], self::MODERATOR_ROLES, true);
     }
 
-    /** Inicia sesión para $userId (cierra la sesión anterior de este navegador, si había). */
+    /**
+     * Inicia sesión para $userId (cierra la sesión anterior de este navegador, si había).
+     * Es el único lugar donde se entra (login, confirmar email, nueva clave, invitación), así que acá
+     * se frena a las cuentas suspendidas.
+     */
     public function login(int $userId): array
     {
+        if ($this->db->value('SELECT suspended_at FROM users WHERE id = ?', [$userId]) !== null) {
+            throw HttpError::forbidden(self::SUSPENDED);
+        }
         if ($this->user() !== null) {
             $this->logout();
         }
@@ -97,6 +106,7 @@ final class Sessions
             [hash('sha256', $token), $userId, bin2hex(random_bytes(32)), $this->request->ip(), $this->request->userAgent(), $this->lifetimeDays()]
         );
         $this->setCookie($token);
+        $this->db->run('UPDATE users SET last_seen_at = UTC_TIMESTAMP() WHERE id = ?', [$userId]);
 
         $row = $this->db->one(
             'SELECT s.token_hash, s.csrf_token, u.id, u.email, u.first_name, u.last_name, u.role

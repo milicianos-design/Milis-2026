@@ -62,6 +62,7 @@ export const auth = {
     verifyEmail: (token) => post('/auth/verify-email', { token }),
     forgotPassword: (email) => post('/auth/forgot-password', { email }),
     resetPassword: (token, password) => post('/auth/reset-password', { token, password }),
+    acceptInvite: (token, password) => post('/auth/accept-invite', { token, password }),
 };
 
 export const posts = {
@@ -87,6 +88,18 @@ export const notes = {
     create: (data) => post('/notes', data).then((res) => res.note),
     update: (id, data) => request('PUT', `/notes/${id}`, data).then((res) => res.note),
     remove: (id) => request('DELETE', `/notes/${id}`),
+};
+
+/** Panel de administración (/admin). El servidor solo responde si quien pide es admin. */
+export const admin = {
+    summary: () => get('/admin/resumen'),
+    users: () => get('/admin/usuarios').then((data) => data.users),
+    createUser: (data) => post('/admin/usuarios', data),
+    resendInvitation: (id) => post(`/admin/usuarios/${id}/invitacion`),
+    changeRole: (id, role) => request('PUT', `/admin/usuarios/${id}/rol`, { role }),
+    suspend: (id) => post(`/admin/usuarios/${id}/suspender`),
+    reactivate: (id) => post(`/admin/usuarios/${id}/reactivar`),
+    postulaciones: () => get('/campamento/postulaciones'),
 };
 
 /** Sube una imagen (kind: 'post' o 'note') y devuelve su URL. */
