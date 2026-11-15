@@ -14,6 +14,17 @@ Pier Giorgio Frassati, Santa Catalina), con un foro y las Notas de Vanguardia pa
 - **Falta apagar lo viejo:** el proyecto anterior en Vercel + Supabase y la versión anterior del campamento
   (también en Vercel). Las postulaciones que llegaron antes del cambio están en una planilla de Google, no en la base.
 
+## Cómo trabajamos
+
+- **`main` es lo que está publicado.** Todo lo que llega a `main` se publica solo en agrupacionjuvenil.com,
+  así que nadie trabaja ni sube cambios directo ahí.
+- **`desarrollo` es la rama de trabajo.** Los cambios se hacen y se suben ahí; subirla a GitHub no publica nada.
+- **Todo se prueba primero en local** con `npm run dev` (y `npm test` si se tocó la API).
+- **Publicar es pasar `desarrollo` a `main`**, cuando está probado y lo acordamos: en GitHub, *Pull requests*
+  → *New pull request* → `main` ← `desarrollo` → *Merge*. En un minuto queda publicado (se sigue en la pestaña *Actions*).
+- Para algo grande, o si dos personas trabajan a la vez, conviene una rama propia que sale de `desarrollo`
+  (por ejemplo `reportes-panel`) y vuelve a `desarrollo` cuando está lista.
+
 ## Cómo está armado
 
 | Parte | Tecnología | Dónde está |
@@ -130,8 +141,7 @@ npm run db:stop   # apaga la base al terminar
 en Hostinger (`.github/workflows/publicar.yml`). El avance y los errores se ven en la pestaña *Actions* del
 repositorio; desde ahí también se puede volver a publicar a mano (*Publicar en Hostinger* → *Run workflow*).
 Si la compilación falla, no se publica nada y el sitio sigue con la versión anterior.
-Como todo lo que llega a `main` sale al sitio, para cambios grandes conviene trabajar en otra rama y pasarla
-a `main` cuando esté probada.
+Por eso se trabaja en `desarrollo` y se pasa a `main` solo lo que ya está probado (ver *Cómo trabajamos*).
 
 Usa una llave SSH exclusiva de GitHub, guardada en los secretos del repositorio (*Settings* → *Secrets and
 variables* → *Actions*: `DEPLOY_SSH`, `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`). Para revocarla, se borra esa
