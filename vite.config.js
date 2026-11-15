@@ -9,6 +9,27 @@ const API_PORT = 8787;
 // Lo que NO se sube al servidor: dependencias de desarrollo, pruebas y la configuración local.
 const API_EXCLUDE = ['vendor', 'config.php', 'tests', 'phpunit.xml', '.phpunit.cache', 'dev-router.php'];
 
+/**
+ * En local, las mismas redirecciones que hace public/.htaccess en el sitio publicado: sin esto,
+ * /admin (sin barra final) mostraba la portada en vez del panel.
+ */
+function devRedirects() {
+  return {
+    name: 'milis-dev-redirects',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const [path, query] = (req.url ?? '').split('?');
+        const target = path === '/admin' ? '/admin/'
+          : path.toLowerCase() === '/campamentobn' ? '/Campamentobn/'
+          : null;
+        if (!target) return next();
+        res.writeHead(301, { Location: target + (query ? `?${query}` : '') });
+        res.end();
+      });
+    },
+  };
+}
+
 /** En desarrollo, levanta la API PHP (php -S) junto con Vite; Vite le pasa /api y /uploads. */
 function phpDevServer(phpBin) {
   return {
@@ -22,10 +43,16 @@ function phpDevServer(phpBin) {
       if (major < 8) {
         throw new Error(`La API necesita PHP 8 y "${phpBin}" no lo es. Configurá PHP_BIN en .env.local.`);
       }
+      // Cuando cambia este archivo, Vite se reinicia dentro del mismo proceso: se reutiliza el PHP que
+      // ya estaba corriendo (uno nuevo chocaría con el puerto ocupado y la API quedaría caída).
+      const running = globalThis.__milisPhpServer;
+      if (running && running.exitCode === null) return;
+
       const php = spawn(phpBin, ['-S', `127.0.0.1:${API_PORT}`, 'api/dev-router.php'], {
         cwd: __dirname,
         stdio: ['ignore', 'ignore', 'pipe'],
       });
+      globalThis.__milisPhpServer = php;
       // php -S anota cada pedido; solo mostramos los errores de PHP.
       php.stderr.on('data', (chunk) => {
         for (const line of chunk.toString().split('\n')) {
@@ -34,9 +61,7 @@ function phpDevServer(phpBin) {
           }
         }
       });
-      const stop = () => php.kill();
-      server.httpServer?.on('close', stop);
-      process.on('exit', stop);
+      process.on('exit', () => php.kill());
     },
   };
 }
@@ -67,6 +92,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       // React solo para la página del campamento (Campamentobn/); el resto del sitio es JS sin framework.
       react({ include: /Campamentobn\/.*\.[jt]sx?$/ }),
+      devRedirects(),
       phpDevServer(env.PHP_BIN || 'php'),
       phpApiBuild(),
     ],

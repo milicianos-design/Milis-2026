@@ -676,13 +676,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (user) {
             const name = escapeHtml(user.first_name || user.email.split('@')[0]);
+            const roleLabel = { admin: 'Admin', redactor: 'Redactor' }[user.role] || 'Miliciano';
+            // Acceso al panel de administración, solo para admins (el servidor igual controla el permiso).
+            const isAdmin = user.role === 'admin';
+            const panelLink = isAdmin
+                ? `<a href="/admin/" class="px-4 py-3 rounded-2xl bg-[#960317] text-white text-[11px] font-extrabold uppercase tracking-widest hover:bg-[#b9252b] transition-all shadow-sm">Panel</a>`
+                : '';
             authContainers.forEach(container => {
                 container.innerHTML = `
                     <div class="flex items-center gap-4">
                         <div class="text-right">
-                            <p class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em]">Miliciano</p>
+                            <p class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.2em]">${roleLabel}</p>
                             <p class="font-extrabold text-sm text-zinc-800 dark:text-zinc-200 tracking-tight">${name}</p>
                         </div>
+                        ${panelLink}
                         <button id="logout-btn" class="p-3 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:text-[#960317] hover:border-[#960317] transition-all shadow-sm">
                             <span class="material-symbols-outlined text-lg">logout</span>
                         </button>
@@ -696,13 +703,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 mobileAuthSection.innerHTML = `
                     <div class="w-full px-2 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                         <div>
-                            <p class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">Miliciano</p>
+                            <p class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest">${roleLabel}</p>
                             <p class="font-bold text-zinc-800 dark:text-zinc-100 text-lg">${name}</p>
                         </div>
                         <button id="mobile-logout-btn" class="p-3 rounded-2xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:text-[#960317] hover:border-[#960317] transition-all shadow-sm">
                             <span class="material-symbols-outlined">logout</span>
                         </button>
                     </div>
+                    ${isAdmin ? `<a href="/admin/" class="mt-3 block w-full text-center py-3 rounded-2xl bg-[#960317] text-white text-xs font-extrabold uppercase tracking-widest">Panel de administración</a>` : ''}
                 `;
                 document.getElementById('mobile-logout-btn')?.addEventListener('click', logout);
             }
