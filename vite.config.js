@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import { cpSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, rmSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -61,6 +61,26 @@ function phpApiBuild() {
   };
 }
 
+/**
+ * La página del campamento (Campamentobn/) es HTML estático ya terminado: se publica tal cual,
+ * sin pasar por Vite. En el build se copian a dist/Campamentobn solo sus archivos públicos
+ * (no su README ni el código React viejo de src/).
+ */
+function campamentoEstatico() {
+  return {
+    name: 'milis-campamento-estatico',
+    apply: 'build',
+    closeBundle() {
+      const src = resolve(__dirname, 'Campamentobn');
+      const dest = resolve(__dirname, 'dist/Campamentobn');
+      mkdirSync(dest, { recursive: true });
+      for (const name of ['index.html', 'favicon.png', '.htaccess', 'assets']) {
+        cpSync(resolve(src, name), resolve(dest, name), { recursive: true });
+      }
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, '');
   return {
@@ -69,6 +89,7 @@ export default defineConfig(({ mode }) => {
       react({ include: /Campamentobn\/.*\.[jt]sx?$/ }),
       phpDevServer(env.PHP_BIN || 'php'),
       phpApiBuild(),
+      campamentoEstatico(),
     ],
     server: {
       // Puerto fijo: la API solo acepta pedidos que vengan de http://localhost:5173.
@@ -88,7 +109,6 @@ export default defineConfig(({ mode }) => {
           piergiorgio: resolve(__dirname, 'pier_giorgio.html'),
           promesas: resolve(__dirname, 'promesas.html'),
           stacatalina: resolve(__dirname, 'sta_catalina.html'),
-          campamentobn: resolve(__dirname, 'Campamentobn/index.html'),
         },
       },
     },

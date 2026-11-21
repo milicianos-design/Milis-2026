@@ -1,0 +1,12 @@
+# Solo para /Campamentobn/. Se copia a public_html/Campamentobn/.htaccess al publicar.
+#
+# Es la misma política de seguridad (CSP) que la raíz del sitio, con los únicos dominios extra que
+# necesita esta página:
+#   - fonts.googleapis.com / fonts.gstatic.com   las fuentes Inter Tight y Raleway
+#   - script.google.com / script.googleusercontent.com   la planilla donde se guardan las postulaciones
+#   - ipapi.co   ubicación aproximada para sugerir la ciudad en el formulario
+# Sin esto el navegador bloquea las fuentes y el envío del formulario (cae al aviso de WhatsApp).
+# El resto de las reglas (HTTPS, redirecciones, caché, otros encabezados) las sigue dando el .htaccess de la raíz.
+<IfModule mod_headers.c>
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com https://*.google-analytics.com https://*.googletagmanager.com; media-src 'self'; worker-src 'self' blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://ipapi.co https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+</IfModule>
