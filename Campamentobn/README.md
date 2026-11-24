@@ -1,7 +1,7 @@
 # Protagonistas del Bien Común 2027
 
 Sitio del campamento nacional de Milicianos universitarios (Mendoza, 15 al 22 de enero de 2027).
-Publicado en https://pbc2027.rucacunumi.com (Hostinger).
+Publicado en https://agrupacionjuvenil.com/Campamentobn/ (Hostinger).
 
 Es un sitio estático: HTML, CSS y JS en `index.html`, sin compilación.
 
@@ -10,6 +10,6 @@ Es un sitio estático: HTML, CSS y JS en `index.html`, sin compilación.
 - `assets/v2/video/`: testimonios, rafting, audio del fogón y guitarra de fondo.
 - `favicon.png`
 
-Para publicar un cambio: editar, hacer commit y push a `main`. Hostinger lo despliega en la carpeta del subdominio.
+Para publicar un cambio: editar, hacer commit y push a `main`. GitHub Actions («Publicar en Hostinger») compila el repo y copia esta carpeta, con su `.htaccess` (la política de seguridad CSP de la página), a `public_html/Campamentobn/`. Las rutas del HTML llevan el prefijo `/Campamentobn/`.
 
-Pendiente: reemplazar `XXXXXXX` en el `<head>` por el ID del kit de Adobe Fonts (Coolvetica) y agregar el dominio al kit.
+Pendiente: tipografía Coolvetica (Adobe Fonts). Falta el ID del kit: agregar en el `<head>` el `<link rel="stylesheet" href="https://use.typekit.net/ID.css">`, sumar `agrupacionjuvenil.com` al kit y permitir `use.typekit.net` (y `p.typekit.net`) en la CSP del `.htaccess` de esta carpeta.
